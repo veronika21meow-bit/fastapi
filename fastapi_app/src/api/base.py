@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, HTTPException
-
-from schemas.posts import PostRequestSchema, PostResponseSchema
+from schemas.posts import Post
+from schemas.users import User
 
 
 router = APIRouter()
@@ -9,12 +9,11 @@ router = APIRouter()
 @router.get("/hello_world", status_code=status.HTTP_200_OK)
 async def get_hello_world() -> dict:
     response = {"text": "Hello, World!"}
-
     return response
 
 
-@router.post("/test_json", status_code=status.HTTP_201_CREATED, response_model=PostResponseSchema)
-async def test_json(post: PostRequestSchema) -> dict:
+@router.post("/test_json", status_code=status.HTTP_201_CREATED, response_model=Post)
+async def test_json(post: Post) -> dict:
     if len(post.text) < 3:
         raise HTTPException(
             detail="Длина поста должна быть не меньше 3 символов",
@@ -26,4 +25,30 @@ async def test_json(post: PostRequestSchema) -> dict:
         "author_name": post.author.login
     }
 
-    return PostResponseSchema.model_validate(obj=response)
+    return Post.model_validate(obj=response)
+
+
+@router.post("/register_user/")
+async def register_user(user: User):
+    response = {"message": "User registered successfully", "user": user}
+    return response
+
+
+@router.delete("/delete_user/")
+async def delete_user(user: User):
+    response = {"message": "User deleted successfully", "user": user}
+    return response
+
+
+@router.put("/update_post/")
+async def delete_user(post: Post):
+    response = {"message": "Post update successfully", "post": post}
+    return response
+
+
+@router.get("/meow", status_code=status.HTTP_200_OK)
+async def get_hello_world() -> dict:
+    response = {"text": "MEOW!"}
+    return response
+
+
