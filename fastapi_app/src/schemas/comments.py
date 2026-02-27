@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 class Comment(BaseModel):
+    id: int
     text: str = Field(..., description='Текст комментария')
     post: Post = Field(..., description='Пост')
     author: User = Field(..., description='Автор комментария')
