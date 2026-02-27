@@ -28,20 +28,20 @@ async def test_json(post: Post) -> dict:
     return Post.model_validate(obj=response)
 
 
-@router.post("/register_user/")
-async def register_user(user: User):
+@router.post("/register_user/", status_code=status.HTTP_200_OK)
+async def register_user(user: User) -> dict:
     response = {"message": "User registered successfully", "user": user}
     return response
 
 
-@router.delete("/delete_user/")
-async def delete_user(user: User):
+@router.delete("/delete_user/", status_code=status.HTTP_200_OK)
+async def delete_user(user: User) -> dict:
     response = {"message": "User deleted successfully", "user": user}
     return response
 
 
-@router.put("/update_post/")
-async def delete_user(post: Post):
+@router.put("/update_post/", status_code=status.HTTP_200_OK)
+async def delete_user(post: Post) -> dict:
     response = {"message": "Post update successfully", "post": post}
     return response
 
