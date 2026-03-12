@@ -6,10 +6,10 @@ from schemas.users import User
 router = APIRouter()
 
 
-@router.get("/hello_world", status_code=status.HTTP_200_OK)
-async def get_hello_world() -> dict:
-    response = {"text": "Hello, World!"}
-    return response
+# @router.get("/hello_world", status_code=status.HTTP_200_OK)
+# async def get_hello_world() -> dict:
+#     response = {"text": "Hello, World!"}
+#     return response
 
 
 @router.post("/test_json", status_code=status.HTTP_201_CREATED, response_model=Post)
@@ -19,24 +19,17 @@ async def test_json(post: Post) -> dict:
             detail="Длина поста должна быть не меньше 3 символов",
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
-
-    response = {
-        "post_text": post.text,
-        "author_name": post.author.login
-    }
-
-    return Post.model_validate(obj=response)
+    return post
 
 
-@router.post("/register_user/", status_code=status.HTTP_201_CREATED, response_model=Post)
+@router.post("/register_user/", status_code=status.HTTP_201_CREATED, response_model=User)
 async def register_user(user: User) -> dict:
-    if len(user.password < 8):
+    if len(user.password) < 8:
         raise HTTPException(
             detail="Длина пароля должна быть не меньше 8 символов",
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         )
-    response = {"message": "User registered successfully", "user": user}
-    return response
+    return user
 
 
 @router.delete("/delete_user/", status_code=status.HTTP_200_OK)
