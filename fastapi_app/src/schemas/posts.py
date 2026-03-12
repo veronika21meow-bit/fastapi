@@ -1,9 +1,8 @@
-from pydantic import BaseModel, Field
 from datetime import datetime
+from pydantic import BaseModel, Field
 from schemas.users import User
 from schemas.locations import Location
 from schemas.categories import Category
-
 
 
 class Post(BaseModel):
@@ -20,5 +19,3 @@ class Post(BaseModel):
     category: Category = Field(description='Категория')
     is_published: bool = Field(..., description='Опубликовано. Снимите галочку, чтобы скрыть публикацию.')
     create_at: datetime = Field(..., description='Добавлено')
-
-
