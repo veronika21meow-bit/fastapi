@@ -8,7 +8,6 @@ from models.locations import Location
 from models.categories import Category
 
 
-
 class Post(Base):
     __tablename__ = "posts"
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False, unique=True)
@@ -16,8 +15,8 @@ class Post(Base):
     text: Mapped[str] = mapped_column(nullable=False)
     image: Mapped[str] = mapped_column(nullable=True)
     pup_date: Mapped[datetime] = mapped_column(nullable=True)
-    is_published: Mapped[bool] = mapped_column(nullable=False)
-    create_at: Mapped[datetime] = mapped_column(nullable=False)
+    is_published: Mapped[bool] = mapped_column(nullable=False, default=True)
+    create_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now)
     # Внешние ключи
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     location_id: Mapped[int] = mapped_column(ForeignKey("locations.id"), nullable=True)
