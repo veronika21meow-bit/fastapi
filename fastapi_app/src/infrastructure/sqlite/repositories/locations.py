@@ -23,28 +23,28 @@ class PostRepository:
 
     
     def delete_location(self, session: Session, id: int) -> bool:
-        post = self.get_location_by_id(session, id)
-        if post:
-            session.delete(post)
+        location = self.get_location_by_id(session, id)
+        if location:
+            session.delete(location)
             session.commit()
             return True
         return False
     
     def create_location(self, session:Session, name: str,
                         is_published: bool = True) -> Location:
-        post = Location(
+        Location = Location(
             name=name,
             is_published=is_published,
             create_at=datetime.now()
         )
-        session.add(post)
+        session.add(Location)
         session.commit()
-        return post
+        return Location
     
     def update_location(self, session:Session, id: int, 
                         name: str) -> Location:
-        post = self.get_location_by_id(session, id)
-        if post:
-            post.name=name
+        location = self.get_location_by_id(session, id)
+        if location:
+            location.name=name
             session.commit()
-        return post
+        return location
