@@ -38,9 +38,9 @@ class PostRepository:
         return False
     
     def create_post(self, session:Session, title: str, text: str,
-                    is_published: bool, author_id: int, location_id: int | None = None,
+                    author_id: int, location_id: int | None = None,
                     category_id: int | None = None, image: str | None = None,
-                    pup_date: datetime | None = None) -> Post:
+                    pup_date: datetime | None = None, is_published: bool = True) -> Post:
         post = Post(
             title=title,
             text=text,
@@ -57,7 +57,7 @@ class PostRepository:
         return post
     
     def update_post(self, session:Session, post_id: int, title: str, 
-                    text: str, is_published: bool, category_id: int | None = None,
+                    text: str, is_published: bool = True, category_id: int | None = None,
                     image: str | None = None) -> Post:
         post = self.get_post_by_id(session, post_id)
         if post:
@@ -68,9 +68,3 @@ class PostRepository:
             post.image = image
             session.commit()
         return post
-
-
-
-
-
-    
