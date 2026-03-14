@@ -56,10 +56,10 @@ class PostRepository:
         session.commit()
         return post
     
-    def update_post(self, session:Session, post_id: int, title: str, 
+    def update_post(self, session:Session, id: int, title: str, 
                     text: str, is_published: bool = True, category_id: int | None = None,
                     image: str | None = None) -> Post:
-        post = self.get_post_by_id(session, post_id)
+        post = self.get_post_by_id(session, id)
         if post:
             post.title=title
             post.text = text
