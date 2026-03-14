@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from infrastructure.sqlite.models.locations import Location
 
 
-class PostRepository:
+class LocationRepository:
     def __init__(self):
         self._model: Type[Location] = Location
 
