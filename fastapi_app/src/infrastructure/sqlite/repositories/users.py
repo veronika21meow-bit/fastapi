@@ -23,7 +23,7 @@ class UserRepository:
         )
         return query.scalar()
     
-    def get_user_by_login(self, session: Session, email: str) -> User:
+    def get_user_by_email(self, session: Session, email: str) -> User:
         query = (
             session.query(self._model)
             .where(self._model.email == email)
