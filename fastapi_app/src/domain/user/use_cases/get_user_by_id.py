@@ -3,14 +3,14 @@ from infrastructure.sqlite.repositories.users import UserRepository
 from schemas.users import UserResponse as UserSchema
 
 
-class GetUserByLoginUseCase:
+class GetUserByIdUseCase:
     def __init__(self):
         self._database = database
         self._repo = UserRepository()
 
-    async def execute(self, login: str) -> UserSchema:
+    async def execute(self, user_id: int) -> UserSchema:
         with self._database.session() as session:
-            user = self._repo.get_user_by_login(session, login)
+            user = self._repo.get_user_by_id(session, user_id)
             user_dict = {
                 "id": user.id,
                 "login": user.login,
