@@ -37,7 +37,7 @@ def get_user_by_login_use_case() -> GetUserByLoginUseCase:
     return GetUserByLoginUseCase()
 
 def get_user_by_email_use_case() -> GetUserByEmailUseCase:
-    return GetUserByLoginUseCase()
+    return GetUserByEmailUseCase()
 
 def create_user_use_case() -> CreateUserUseCase:
     return CreateUserUseCase()
