@@ -1,7 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
-from typing import List
-
-from schemas.users import User, UserCreate, UserResponse
+from schemas.users import User
 
 from api.depends import (
     get_user_by_id_use_case,
@@ -14,10 +12,10 @@ from api.depends import (
 users_router = APIRouter()
 
 
-@users_router.get("/profile/{user_id}", status_code=status.HTTP_200_OK, response_model=UserResponse)
+@users_router.get("/profile/{user_id}", status_code=status.HTTP_200_OK, response_model=User)
 async def get_user_by_id(
     user_id: int,
-    use_case = Depends(get_user_by_id_use_case)) -> UserResponse:
+    use_case = Depends(get_user_by_id_use_case)) -> User:
     try:
         user = await use_case.execute(user_id=user_id)
         return user
@@ -27,10 +25,10 @@ async def get_user_by_id(
             detail=str(e)
         )
 
-@users_router.get("/login/{login}", status_code=status.HTTP_200_OK, response_model=UserResponse)
+@users_router.get("/login/{login}", status_code=status.HTTP_200_OK, response_model=User)
 async def get_user_by_login(
     login: str,
-    use_case = Depends(get_user_by_login_use_case)) -> UserResponse:
+    use_case = Depends(get_user_by_login_use_case)) -> User:
     try:
         user = await use_case.execute(login=login)
         return user
@@ -40,10 +38,10 @@ async def get_user_by_login(
             detail=str(err)
         )
     
-@users_router.get("/email/{email}", status_code=status.HTTP_200_OK, response_model=UserResponse)
+@users_router.get("/email/{email}", status_code=status.HTTP_200_OK, response_model=User)
 async def get_user_by_email(
     email: str,
-    use_case = Depends(get_user_by_email_use_case)) -> UserResponse:
+    use_case = Depends(get_user_by_email_use_case)) -> User:
     try:
         user = await use_case.execute(email=email)
         return user
@@ -53,22 +51,24 @@ async def get_user_by_email(
             detail=str(err)
         )
 
-
-@users_router.post("/register", status_code=status.HTTP_200_OK, response_model=User)
+@users_router.post("/register", status_code=status.HTTP_201_CREATED, response_model=User)  
 async def create_user(
-    data: UserCreate,
+    data: User,
     use_case = Depends(create_user_use_case)) -> User:
     return await use_case.execute(data)
 
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: int,
-    use_case = Depends(delete_user_use_case)):
+    use_case = Depends(delete_user_use_case)) -> None: 
     try:
         result = await use_case.execute(user_id=user_id)
-        if result:
-            return {"message": "Пользователь удален"}
-    except ValueError as e:
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Пользователь не найден"
+            )
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пользователь не найден"
