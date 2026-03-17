@@ -17,12 +17,13 @@ class PostRepository:
         )
         return query.scalar()
     
-    def get_post_by_author(self, session: Session, author_id: int) -> Post:
+    def get_posts_by_author(self, session: Session, author_id: int) -> List[Post]:
         query = (
             session.query(self._model)
             .where(self._model.author_id == author_id)
+            .all()
         )
-        return query.scalar()
+        return query
     
     def get_all_posts(self, session: Session) -> List[Post]:
         query = session.query(self._model).all()
@@ -49,7 +50,7 @@ class PostRepository:
             location_id=location_id,
             category_id=category_id,
             image=image,
-            pup_date=pub_date,
+            pub_date=pub_date,
             create_at=datetime.now(),
         )
         session.add(post)
