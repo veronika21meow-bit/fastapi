@@ -40,7 +40,7 @@ class PostRepository:
     def create_post(self, session:Session, title: str, text: str,
                     author_id: int, location_id: int | None = None,
                     category_id: int | None = None, image: str | None = None,
-                    pup_date: datetime | None = None, is_published: bool = True) -> Post:
+                    pub_date: datetime | None = None, is_published: bool = True) -> Post:
         post = Post(
             title=title,
             text=text,
@@ -49,7 +49,7 @@ class PostRepository:
             location_id=location_id,
             category_id=category_id,
             image=image,
-            pup_date=pup_date,
+            pup_date=pub_date,
             create_at=datetime.now(),
         )
         session.add(post)
