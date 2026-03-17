@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from typing import List
 
-from schemas.posts import Post, PostCreate, PostUpdate
+from schemas.posts import Post
 
 from api.depends import (
     get_all_posts_use_case,
@@ -60,7 +60,7 @@ async def get_posts_by_author(
 
 @posts_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Post)
 async def create_post(
-    post_data: PostCreate, 
+    post_data: Post, 
     use_case = Depends(create_post_use_case)
 ) -> Post:
     try:
@@ -85,7 +85,7 @@ async def create_post(
 @posts_router.put("/{post_id}", status_code=status.HTTP_200_OK, response_model=Post)
 async def update_post(
     post_id: int,
-    post_data: PostUpdate,  # Схема для обновления
+    post_data: Post,  # Схема для обновления
     use_case = Depends(update_post_use_case)
 ) -> Post:
     try:
