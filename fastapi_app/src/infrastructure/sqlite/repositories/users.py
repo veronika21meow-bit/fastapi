@@ -19,7 +19,7 @@ class UserRepository:
     def get_user_by_login(self, session: Session, login: str) -> User:
         query = (
             session.query(self._model)
-            .where(self._model.login == id)
+            .where(self._model.login == login)
         )
         return query.scalar()
     
