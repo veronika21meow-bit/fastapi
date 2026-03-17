@@ -2,7 +2,7 @@ from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.locations import LocationRepository
 from schemas.locations import Location as LocationSchema
 
-class UpdateLocationNameUseCase:
+class UpdateLocationUseCase:
     def __init__(self):
         self._database = database
         self._repo = LocationRepository()
