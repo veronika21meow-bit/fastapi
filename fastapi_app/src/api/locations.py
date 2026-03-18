@@ -43,13 +43,13 @@ async def get_location_by_id(
 
 @locations_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Location)
 async def create_location(
-    location_data: Location,  # Используем Pydantic схему
+    name: str, is_published: bool = True,
     use_case = Depends(create_location_use_case)
 ) -> Location:
     try:
         location = await use_case.execute(
-            name=location_data.name,
-            is_published=location_data.is_published
+            name=name,
+            is_published=is_published
         )
         return location
     except ValueError as err:

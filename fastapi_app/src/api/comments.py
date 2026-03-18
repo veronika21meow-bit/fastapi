@@ -44,15 +44,16 @@ async def get_comment_by_id(
 
 @comments_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Comment)
 async def create_comment(
-    comment_data: Comment,  
+    text: str, author_id: int,
+    post_id: int, is_published: bool = True, 
     use_case = Depends(create_comment_use_case)
 ) -> Comment:
     try:
         comment = await use_case.execute(
-            text=comment_data.text,
-            post_id=comment_data.post_id,
-            author_id=comment_data.author_id,
-            is_published=comment_data.is_published
+            text=text,
+            post_id=post_id,
+            author_id=author_id,
+            is_published=is_published
         )
         return comment
     except ValueError as err:
@@ -65,14 +66,15 @@ async def create_comment(
 @comments_router.put("/{comment_id}", status_code=status.HTTP_200_OK, response_model=Comment)
 async def update_comment(
     comment_id: int,
-    comment_data: Comment,
+    text: str,
+    is_published: bool = True,
     use_case = Depends(update_comment_use_case)
 ) -> Comment:
     try:
         comment = await use_case.execute(
             id=comment_id,
-            text=comment_data.text,
-            is_published=comment_data.is_published
+            text=text,
+            is_published=is_published
         )
         if not comment:
             raise HTTPException(

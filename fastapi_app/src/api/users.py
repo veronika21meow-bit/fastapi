@@ -19,10 +19,10 @@ async def get_user_by_id(
     try:
         user = await use_case.execute(user_id=user_id)
         return user
-    except ValueError as e:
+    except ValueError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+            detail=str(err)
         )
 
 @users_router.get("/login/{login}", status_code=status.HTTP_200_OK, response_model=User)
@@ -42,20 +42,33 @@ async def get_user_by_login(
 async def get_user_by_email(
     email: str,
     use_case = Depends(get_user_by_email_use_case)) -> User:
-    try:
-        user = await use_case.execute(email=email)
-        return user
-    except ValueError as err:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(err)
-        )
+    user = await use_case.execute(email=email)
+    return user
+
 
 @users_router.post("/register", status_code=status.HTTP_201_CREATED, response_model=User)  
 async def create_user(
-    data: User,
+    login: str,
+    email: str,
+    password: str,
+    first_name: str | None = None,
+    last_name: str | None = None,
     use_case = Depends(create_user_use_case)) -> User:
-    return await use_case.execute(data)
+    try:
+        user = await use_case.execute(
+            login=login,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+        return user
+    except ValueError as err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(err)
+        )
+
 
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(

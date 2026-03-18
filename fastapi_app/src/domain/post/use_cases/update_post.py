@@ -34,7 +34,7 @@ class UpdatePostUseCase:
                 "location_id": updated.location_id,
                 "category_id": updated.category_id,
                 "image": updated.image,
-                "created_at": updated.created_at,
+                "create_at": updated.create_at,
                 "is_published": updated.is_published
             }
             

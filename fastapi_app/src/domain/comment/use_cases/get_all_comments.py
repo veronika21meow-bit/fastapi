@@ -20,7 +20,8 @@ class GetAllCommentsUseCase:
                     "text": comment.text,
                     "create_at": comment.create_at,
                     "post_id": comment.post_id,
-                    "author_id": comment.author_id
+                    "author_id": comment.author_id,
+                    "is_published": comment.is_published
                 }
 
                 result.append(CommentSchema.model_validate(obj=comment_dict))

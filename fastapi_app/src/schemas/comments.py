@@ -7,7 +7,7 @@ from datetime import datetime
 class Comment(BaseModel):
     id: int
     text: str = Field(..., description='Текст комментария')
-    post: Post = Field(..., description='Пост')
-    author: User = Field(..., description='Автор комментария')
+    post_id: int = Field(..., description='Пост')
+    author_id: int = Field(..., description='Автор комментария')
     is_published: bool = Field(..., description='Опубликовано. Снимите галочку, чтобы скрыть публикацию.')
-    created_at: datetime = Field(..., description='Добавлено')
+    create_at: datetime = Field(..., description='Добавлено')

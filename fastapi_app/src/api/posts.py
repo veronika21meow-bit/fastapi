@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, status, HTTPException, Depends
 from typing import List
 
@@ -60,19 +61,23 @@ async def get_posts_by_author(
 
 @posts_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Post)
 async def create_post(
-    post_data: Post, 
-    use_case = Depends(create_post_use_case)
-) -> Post:
+    title: str, text: str,
+    pub_date: datetime, author_id: int,
+    location_id: int | None = None,
+    category_id: int | None = None,
+    image: str | None = None,
+    is_published: bool = True,
+    use_case = Depends(create_post_use_case)) -> Post:
     try:
         post = await use_case.execute(
-            title=post_data.title,
-            text=post_data.text,
-            pub_date=post_data.pub_date,
-            author_id=post_data.author_id,
-            location_id=post_data.location_id,
-            category_id=post_data.category_id,
-            image=post_data.image,
-            is_published=post_data.is_published
+            title=title,
+            text=text,
+            pub_date=pub_date,
+            author_id=author_id,
+            location_id=location_id,
+            category_id=category_id,
+            image=image,
+            is_published=is_published
         )
         return post
     except ValueError as err:

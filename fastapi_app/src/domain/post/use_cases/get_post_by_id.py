@@ -17,7 +17,7 @@ class GetPostByIdUseCase:
                 "title": post.title,
                 "text": post.text,
                 "pub_date": post.pub_date,
-                "created_at": post.created_at,
+                "create_at": post.create_at,
                 "author_id": post.author_id,
                 "location_id": post.location_id,
                 "category_id": post.category_id,

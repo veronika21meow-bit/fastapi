@@ -32,14 +32,14 @@ class LocationRepository:
     
     def create_location(self, session:Session, name: str,
                         is_published: bool = True) -> Location:
-        Location = Location(
+        location = Location(
             name=name,
             is_published=is_published,
             create_at=datetime.now()
         )
-        session.add(Location)
+        session.add(location)
         session.commit()
-        return Location
+        return location
     
     def update_location(self, session:Session, id: int, 
                         name: str) -> Location:

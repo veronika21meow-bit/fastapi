@@ -44,15 +44,16 @@ async def get_category_by_id(
 
 @categories_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Category)
 async def create_category(
-    category_data: Category,  # Используем Pydantic схему
+    title: str, description: str,
+    slug: str, is_published: bool = True,
     use_case = Depends(create_category_use_case)
 ) -> Category:
     try:
         category = await use_case.execute(
-            title=category_data.title,
-            description=category_data.description,
-            slug=category_data.slug,
-            is_published=category_data.is_published
+            title=title,
+            description=description,
+            slug=slug,
+            is_published=is_published
         )
         return category
     except ValueError as err:

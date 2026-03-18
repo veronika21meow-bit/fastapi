@@ -9,10 +9,10 @@ class UserRepository:
     def __init__(self):
         self._model: Type[User] = User
 
-    def get_user_by_id(self, session: Session, id: int) -> User:
+    def get_user_by_id(self, session: Session, user_id: int) -> User:
         query = (
             session.query(self._model)
-            .where(self._model.id == id)
+            .where(self._model.id == user_id)
         )
         return query.scalar()
     

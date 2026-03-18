@@ -46,7 +46,7 @@ def delete_user_use_case() -> DeleteUserUseCase:
     return DeleteUserUseCase()
 
 
-def get_all_posts_use_case() -> GetPostsByAuthorUseCase:
+def get_posts_by_author_use_case() -> GetPostsByAuthorUseCase:
     return GetPostsByAuthorUseCase()
 
 def get_all_posts_use_case() -> GetAllPostsUseCase:

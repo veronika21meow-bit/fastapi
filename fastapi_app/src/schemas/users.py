@@ -5,6 +5,6 @@ class User(BaseModel):
     id: int
     email : EmailStr
     login: str
-    first_name: str = Field(max_length=20)
-    last_name: str = Field(max_length=20)
+    first_name: str | None = Field(None, max_length=20)
+    last_name: str | None = Field(None, max_length=20)
     password: SecretStr

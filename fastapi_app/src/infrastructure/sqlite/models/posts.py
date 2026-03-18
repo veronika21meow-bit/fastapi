@@ -11,7 +11,7 @@ class Post(Base):
     title: Mapped[str] = mapped_column(String(256), nullable=False)
     text: Mapped[str] = mapped_column(nullable=False)
     image: Mapped[str] = mapped_column(nullable=True)
-    pup_date: Mapped[datetime] = mapped_column(nullable=True)
+    pub_date: Mapped[datetime] = mapped_column(nullable=True)
     is_published: Mapped[bool] = mapped_column(nullable=False, default=True)
     create_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now)
     # Внешние ключи
@@ -22,4 +22,4 @@ class Post(Base):
     author = relationship("User", back_populates="posts")
     location = relationship("Location", back_populates="posts")
     category = relationship("Category", back_populates="posts")
-
+    comments = relationship("Comment", back_populates="posts")

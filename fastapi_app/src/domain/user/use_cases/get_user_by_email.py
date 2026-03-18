@@ -1,3 +1,4 @@
+from pydantic.types import SecretStr
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.users import UserRepository
 from schemas.users import User as UserSchema
@@ -16,7 +17,8 @@ class GetUserByEmailUseCase:
                 "login": user.login,
                 "email": user.email,
                 "first_name": user.first_name,
-                "last_name": user.last_name
+                "last_name": user.last_name,
+                "password": SecretStr(user.password)
             }
 
             return UserSchema.model_validate(obj=user_dict)
