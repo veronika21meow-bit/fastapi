@@ -3,9 +3,6 @@ from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, String
-from models.users import User
-from models.locations import Location
-from models.categories import Category
 
 
 class Post(Base):
@@ -22,7 +19,7 @@ class Post(Base):
     location_id: Mapped[int] = mapped_column(ForeignKey("locations.id"), nullable=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=True)
     # Связи
-    author: Mapped["User"] = relationship("User", back_populates="posts")
-    location: Mapped["Location"] = relationship("Location", back_populates="posts")
-    category: Mapped["Category"] = relationship("Category", back_populates="posts")
+    author = relationship("User", back_populates="posts")
+    location = relationship("Location", back_populates="posts")
+    category = relationship("Category", back_populates="posts")
 

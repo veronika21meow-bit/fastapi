@@ -3,8 +3,6 @@ from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from models.users import User
-from models.posts import Post
 
 
 class Comment(Base):
@@ -17,5 +15,5 @@ class Comment(Base):
     post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), nullable=False)
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     # Связи
-    post: Mapped["Post"] = relationship("Location", back_populates="posts")
-    author: Mapped["User"] = relationship("User", back_populates="posts")
+    post = relationship("Location", back_populates="posts")
+    author = relationship("User", back_populates="posts")
