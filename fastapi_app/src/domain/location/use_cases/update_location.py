@@ -11,6 +11,8 @@ class UpdateLocationUseCase:
         with self._database.session() as session:
             updated = self._repo.update_location(session, id, name)
             session.commit()
+            if not updated:
+                raise ValueError(f"Локация с id '{id}' не найдена")
            
             location_data = {
                 "id":updated.id,

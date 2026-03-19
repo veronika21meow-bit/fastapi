@@ -3,16 +3,16 @@ from infrastructure.sqlite.repositories.locations import LocationRepository
 from schemas.locations import Location as LocationSchema
 
 
-class GetLocationByIdUseCase:
+class GetLocationByNameUseCase:
     def __init__(self):
         self._database = database
         self._repo = LocationRepository()
 
-    async def execute(self, location_id: int) -> LocationSchema:
+    async def execute(self, name: int) -> LocationSchema:
         with self._database.session() as session:
-            location = self._repo.get_location_by_id(session, location_id)
+            location = self._repo.get_location_by_name(session, name)
             if not location:
-                raise ValueError(f"Локация с id '{location_id}' не найдена")
+                raise ValueError(f"Локация с именем '{name}' не найдена")
             location_dict = {
                 "id": location.id,
                 "name": location.name,

@@ -20,7 +20,8 @@ class UpdateCommentUseCase:
                 is_published
             )
             session.commit()
-            
+            if not updated:
+                raise ValueError(f"Комментарий с id '{id}' не найден")
             comment_dict = {
                 "id": updated.id,
                 "text": updated.text,

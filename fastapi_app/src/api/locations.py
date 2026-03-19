@@ -7,7 +7,8 @@ from api.depends import (
     get_location_by_id_use_case,
     create_location_use_case,
     delete_location_use_case,
-    update_location_use_case
+    update_location_use_case,
+    get_location_by_name_use_case
 )
 
 locations_router = APIRouter()
@@ -21,7 +22,7 @@ async def get_all_locations(
     return locations
 
 
-@locations_router.get("/{location_id}", status_code=status.HTTP_200_OK, response_model=Location)
+@locations_router.get("/id/{location_id}", status_code=status.HTTP_200_OK, response_model=Location)
 async def get_location_by_id(
     location_id: int,
     use_case = Depends(get_location_by_id_use_case)
@@ -31,15 +32,33 @@ async def get_location_by_id(
         if not location:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Локация с ID {location_id} не найдена"
+                detail=f"Локация с id '{location_id}' не найдена"
             )
         return location
-    except ValueError:
+    except ValueError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Локация не найдена"
+            detail=str(err)
         )
 
+@locations_router.get("/name/{name}", status_code=status.HTTP_200_OK, response_model=Location)
+async def get_location_by_name(
+    name: str,
+    use_case = Depends(get_location_by_name_use_case)
+) -> Location:
+    try:
+        location = await use_case.execute(name=name)
+        if not location:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Локация с именем '{name}' не найдена"
+            )
+        return location
+    except ValueError as err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(err)
+        )
 
 @locations_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Location)
 async def create_location(
@@ -73,7 +92,7 @@ async def update_location(
         if not location:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Локация с ID {location_id} не найдена"
+                detail=f"Локация с id '{location_id}' не найдена"
             )
         return location
     except ValueError as err:
@@ -93,7 +112,7 @@ async def delete_location(
         if not result:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Локация с ID {location_id} не найдена"
+                detail=f"Локация с id '{location_id}' не найдена"
             )
     except ValueError as err:
         raise HTTPException(

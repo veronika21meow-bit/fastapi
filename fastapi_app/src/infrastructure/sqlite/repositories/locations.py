@@ -17,6 +17,13 @@ class LocationRepository:
         )
         return query.scalar()
     
+    def get_location_by_name(self, session: Session, name: str) -> Location:
+        query = (
+            session.query(self._model)
+            .where(self._model.name == name)
+        )
+        return query.scalar()
+    
     def get_all_locations(self, session: Session) -> List[Location]:
         query = session.query(self._model).all()
         return query

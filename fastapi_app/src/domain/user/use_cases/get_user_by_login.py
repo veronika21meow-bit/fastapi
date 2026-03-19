@@ -12,6 +12,8 @@ class GetUserByLoginUseCase:
     async def execute(self, login: str) -> UserSchema:
         with self._database.session() as session:
             user = self._repo.get_user_by_login(session, login)
+            if not user:
+                raise ValueError(f"Пользователь с логином '{login}' не найден")
             user_dict = {
                 "id": user.id,
                 "login": user.login,

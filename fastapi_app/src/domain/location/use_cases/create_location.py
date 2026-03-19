@@ -10,6 +10,9 @@ class CreateLocationUseCase:
 
     async def execute(self, name: str, is_published: bool = True) -> LocationSchema:
         with self._database.session() as session:
+            existing_name = self._repo.get_location_by_name(session, name)
+            if existing_name:
+                raise ValueError(f"Локация с именем '{name}' уже существует") 
             location = self._repo.create_location(
                 session=session,
                 name=name,

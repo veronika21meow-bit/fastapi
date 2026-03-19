@@ -13,3 +13,4 @@ class User(Base):
     password: Mapped[str] = mapped_column(nullable=False)
     posts = relationship("Post", back_populates="author")
     comments = relationship("Comment", back_populates="author")
+    

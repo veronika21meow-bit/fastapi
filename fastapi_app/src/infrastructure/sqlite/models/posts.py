@@ -22,4 +22,4 @@ class Post(Base):
     author = relationship("User", back_populates="posts")
     location = relationship("Location", back_populates="posts")
     category = relationship("Category", back_populates="posts")
-    comments = relationship("Comment", back_populates="posts")
+    comments = relationship("Comment", back_populates="post")

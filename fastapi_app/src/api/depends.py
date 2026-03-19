@@ -19,15 +19,19 @@ from domain.comment.use_cases.update_comment import UpdateCommentUseCase
 
 from domain.location.use_cases.get_all_locations import GetAllLocationsUseCase
 from domain.location.use_cases.get_location_by_id import GetLocationByIdUseCase
+from domain.location.use_cases.get_location_by_name import GetLocationByNameUseCase
 from domain.location.use_cases.create_location import CreateLocationUseCase
 from domain.location.use_cases.delete_location import DeleteLocationUseCase
 from domain.location.use_cases.update_location import UpdateLocationUseCase
 
 from domain.category.use_cases.get_all_categories import GetAllCategoriesUseCase
 from domain.category.use_cases.get_category_by_id import GetCategoryByIdUseCase
+from domain.category.use_cases.get_category_by_slug import GetCategoryBySlugUseCase
+from domain.category.use_cases.get_category_by_title import GetCategoryByTitleUseCase
 from domain.category.use_cases.create_category import CreateCategoryUseCase
 from domain.category.use_cases.delete_category import DeleteCategoryUseCase
 from domain.category.use_cases.update_category import UpdateCategoryUseCase
+
 
 
 def get_user_by_id_use_case() -> GetUserByIdUseCase:
@@ -87,6 +91,9 @@ def get_all_locations_use_case() -> GetAllLocationsUseCase:
 def get_location_by_id_use_case() -> GetLocationByIdUseCase:
     return GetLocationByIdUseCase()
 
+def get_location_by_name_use_case() -> GetLocationByNameUseCase:
+    return GetLocationByNameUseCase()
+
 def create_location_use_case() -> CreateLocationUseCase:
     return CreateLocationUseCase()
 
@@ -102,6 +109,12 @@ def get_all_categories_use_case() -> GetAllCategoriesUseCase:
 
 def get_category_by_id_use_case() -> GetCategoryByIdUseCase:
     return GetCategoryByIdUseCase()
+
+def get_category_by_slug_use_case() -> GetCategoryBySlugUseCase:
+    return GetCategoryBySlugUseCase()
+
+def get_category_by_title_use_case() -> GetCategoryByTitleUseCase:
+    return GetCategoryByTitleUseCase()
 
 def create_category_use_case() -> CreateCategoryUseCase:
     return CreateCategoryUseCase()

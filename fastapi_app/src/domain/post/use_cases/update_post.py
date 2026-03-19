@@ -14,7 +14,6 @@ class UpdatePostUseCase:
         image: str | None = None,
     ) -> PostSchema:
         with self._database.session() as session:
-            
             updated = self._repo.update_post(
                 session=session,
                 id=id,
@@ -24,7 +23,9 @@ class UpdatePostUseCase:
                 category_id=category_id,
                 image=image
             )
-            
+            session.commit()
+            if not updated:
+                raise ValueError(f"Пост с id '{id}' не найден")
             post_dict = {
                 "id": updated.id,
                 "title": updated.title,

@@ -15,5 +15,5 @@ class Comment(Base):
     post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), nullable=False)
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     # Связи
-    posts = relationship("Post", back_populates="comments")
+    post = relationship("Post", back_populates="comments")
     author = relationship("User", back_populates="comments")

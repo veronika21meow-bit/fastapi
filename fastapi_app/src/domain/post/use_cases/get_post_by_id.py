@@ -11,7 +11,8 @@ class GetPostByIdUseCase:
     async def execute(self, post_id: int) -> PostSchema:
         with self._database.session() as session:
             post = self._repo.get_post_by_id(session, post_id)
-
+            if not post:
+                raise ValueError(f"Пост с id '{post_id}' не найден")
             post_dict = {
                 "id": post.id,
                 "title": post.title,

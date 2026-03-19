@@ -42,9 +42,14 @@ async def get_user_by_login(
 async def get_user_by_email(
     email: str,
     use_case = Depends(get_user_by_email_use_case)) -> User:
-    user = await use_case.execute(email=email)
-    return user
-
+    try:
+        user = await use_case.execute(email=email)
+        return user
+    except ValueError as err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(err)
+        )
 
 @users_router.post("/register", status_code=status.HTTP_201_CREATED, response_model=User)  
 async def create_user(

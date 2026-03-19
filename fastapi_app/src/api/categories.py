@@ -8,7 +8,9 @@ from api.depends import (
     get_category_by_id_use_case,
     create_category_use_case,
     delete_category_use_case,
-    update_category_use_case 
+    update_category_use_case ,
+    get_category_by_slug_use_case,
+    get_category_by_title_use_case
 )
 
 categories_router = APIRouter()
@@ -22,7 +24,7 @@ async def get_all_categories(
     return categories
 
 
-@categories_router.get("/{category_id}", status_code=status.HTTP_200_OK, response_model=Category)
+@categories_router.get("/id/{category_id}", status_code=status.HTTP_200_OK, response_model=Category)
 async def get_category_by_id(
     category_id: int,
     use_case = Depends(get_category_by_id_use_case)
@@ -32,13 +34,52 @@ async def get_category_by_id(
         if not category:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Категория с ID {category_id} не найдена"
+                detail=f"Категория с id '{category_id}' не найдена"
             )
         return category
-    except ValueError:
+    except ValueError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Категория не найдена"
+            detail=str(err)
+        )
+    
+
+@categories_router.get("/slug/{slug}", status_code=status.HTTP_200_OK, response_model=Category)
+async def get_category_by_slug(
+    slug: str,
+    use_case = Depends(get_category_by_slug_use_case)
+) -> Category:
+    try:
+        category = await use_case.execute(slug=slug)
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Категория с slug '{slug}' не найдена"
+            )
+        return category
+    except ValueError as err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(err)
+        )
+    
+@categories_router.get("/title/{title}", status_code=status.HTTP_200_OK, response_model=Category)
+async def get_category_by_title(
+    title: str,
+    use_case = Depends(get_category_by_title_use_case)
+) -> Category:
+    try:
+        category = await use_case.execute(title=title)
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Категория с названием '{title}' не найдена"
+            )
+        return category
+    except ValueError as err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(err)
         )
 
 
@@ -80,7 +121,7 @@ async def update_category(
         if not category:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Категория с ID {category_id} не найдена"
+                detail=f"Категория с id '{category_id}' не найдена"
             )
         return category
     except ValueError as err:
@@ -100,7 +141,7 @@ async def delete_category(
         if not result:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Категория с ID {category_id} не найдена"
+                detail=f"Категория с id '{category_id}' не найдена"
             )
     except ValueError as err:
         raise HTTPException(

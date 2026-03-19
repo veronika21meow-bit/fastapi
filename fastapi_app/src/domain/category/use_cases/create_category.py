@@ -11,6 +11,14 @@ class CreateCategoryUseCase:
     async def execute(self, title: str, description: str,
                     slug: str, is_published: bool = True) -> CategorySchema:
         with self._database.session() as session:
+            existing_title = self._repo.get_category_by_title(session, title)
+            existing_slug = self._repo.get_category_by_slug(session, slug)
+            if existing_title and existing_slug:
+                raise ValueError(f"Пользователь с названием '{title}' и с slug '{slug}' уже существует") 
+            if existing_title:
+                raise ValueError(f"Пользователь с название '{title}' уже существует")
+            if existing_slug:
+                raise ValueError(f"Пользователь с slug '{slug}' уже существует") 
             category = self._repo.create_category(
                 session=session,
                 title=title,

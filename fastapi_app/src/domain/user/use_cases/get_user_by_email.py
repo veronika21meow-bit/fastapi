@@ -12,6 +12,8 @@ class GetUserByEmailUseCase:
     async def execute(self, email: str) -> UserSchema:
         with self._database.session() as session:
             user = self._repo.get_user_by_email(session, email)
+            if not user:
+                raise ValueError(f"Пользователь с email '{email}' не найден")
             user_dict = {
                 "id": user.id,
                 "login": user.login,

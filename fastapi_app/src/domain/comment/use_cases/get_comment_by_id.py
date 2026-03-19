@@ -11,7 +11,8 @@ class GetCommentByIdUseCase:
     async def execute(self, comment_id: int) -> CommentSchema:
         with self._database.session() as session:
             comment = self._repo.get_comment_by_id(session, comment_id)
-
+            if not comment:
+                raise ValueError(f"Комментарий с id '{comment_id}' не найден")
             comment_dict = {
                 "id": comment.id,
                 "text": comment.text,

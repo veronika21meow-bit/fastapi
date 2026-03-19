@@ -23,7 +23,8 @@ class UpdateCategoryUseCase:
                 is_published
             )
             session.commit()
-            
+            if not updated:
+                raise ValueError(f"Категория с id '{id}' не найдена")
             category_dict = {
                 "id": updated.id,
                 "title": updated.title,
