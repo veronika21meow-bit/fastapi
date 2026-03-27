@@ -10,7 +10,7 @@ class PostRepository:
     def __init__(self):
         self._model: Type[Post] = Post
 
-    def get_post_by_id(self, session: Session, id: int) -> Post:
+    def get_post_by_id(self, session: Session, id: int) -> Post | None:
         query = (
             session.query(self._model)
             .where(self._model.id == id)
