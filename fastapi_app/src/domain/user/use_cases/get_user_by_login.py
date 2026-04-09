@@ -1,7 +1,8 @@
-from pydantic.types import SecretStr
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.users import UserRepository
-from schemas.users import User as UserSchema
+from core.exceptions.database_exceptions import UserNotFoundException
+from core.exceptions.domain_exceptions import UserNotFoundByLoginException
+from schemas.users import User
 
 
 class GetUserByLoginUseCase:
@@ -9,18 +10,11 @@ class GetUserByLoginUseCase:
         self._database = database
         self._repo = UserRepository()
 
-    async def execute(self, login: str) -> UserSchema:
+    async def execute(self, login: str) -> User:
         with self._database.session() as session:
-            user = self._repo.get_user_by_login(session, login)
-            if not user:
-                raise ValueError(f"Пользователь с логином '{login}' не найден")
-            user_dict = {
-                "id": user.id,
-                "login": user.login,
-                "email": user.email,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "password": SecretStr(user.password)
-
-            }
-            return UserSchema.model_validate(obj=user_dict)
+            try:
+                user = self._repo.get_user_by_login(session, login)
+            except UserNotFoundException:
+                error = UserNotFoundByLoginException(login=login)
+                raise error
+            return User.model_validate(obj=user)
