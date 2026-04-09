@@ -1,6 +1,8 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.comments import CommentRepository
-from schemas.comments import Comment as CommentSchema
+from schemas.comments import Comment
+from core.exceptions.database_exceptions import CommentNotFoundException
+from core.exceptions.domain_exceptions import CommentNotFoundByIdException
 
 
 class GetCommentByIdUseCase:
@@ -8,18 +10,12 @@ class GetCommentByIdUseCase:
         self._database = database
         self._repo = CommentRepository()
 
-    async def execute(self, comment_id: int) -> CommentSchema:
+    async def execute(self, comment_id: int) -> Comment:
         with self._database.session() as session:
-            comment = self._repo.get_comment_by_id(session, comment_id)
-            if not comment:
-                raise ValueError(f"Комментарий с id '{comment_id}' не найден")
-            comment_dict = {
-                "id": comment.id,
-                "text": comment.text,
-                "create_at": comment.create_at,
-                "post_id": comment.post_id,
-                "author_id": comment.author_id,
-                "is_published": comment.is_published
-            }
+            try:
+                comment = self._repo.get_comment_by_id(session, comment_id)
+            except CommentNotFoundException:
+                error = CommentNotFoundByIdException(comment_id=comment_id)
+                raise error
 
-            return CommentSchema.model_validate(obj=comment_dict)
+            return Comment.model_validate(obj=comment)

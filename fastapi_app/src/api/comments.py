@@ -1,25 +1,21 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from typing import List
 
-from schemas.comments import Comment
+from schemas.comments import Comment, BaseComment as CreateComment
 
 from api.depends import (
-    get_all_comments_use_case,
+    get_comments_by_post_use_case,
     get_comment_by_id_use_case,
     create_comment_use_case,
     delete_comment_use_case,
     update_comment_use_case,  
 )
-
+from core.exceptions.domain_exceptions import (
+    CommentNotFoundByIdException,
+    PostNotFoundByIdException,
+    UserNotFoundByIdException,
+)
 comments_router = APIRouter()
-
-
-@comments_router.get("/", status_code=status.HTTP_200_OK, response_model=List[Comment])
-async def get_all_comments(
-    use_case = Depends(get_all_comments_use_case)
-) -> List[Comment]:
-    comments = await use_case.execute()
-    return comments
 
 
 @comments_router.get("/{comment_id}", status_code=status.HTTP_200_OK, response_model=Comment)
@@ -29,41 +25,41 @@ async def get_comment_by_id(
 ) -> Comment:
     try:
         comment = await use_case.execute(comment_id=comment_id)
-        if not comment:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Комментарий с ID {comment_id} не найден"
-            )
         return comment
-    except ValueError as err:
+    except CommentNotFoundByIdException as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(err)
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
         )
 
 
-@comments_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Comment)
+@comments_router.get("/{author_id}", status_code=status.HTTP_200_OK, response_model=Comment)
+async def get_comments_by_post(
+    author_id: int,
+    use_case = Depends(get_comment_by_id_use_case)
+) -> Comment:
+    try:
+        comment = await use_case.execute(author_id=author_id)
+        return comment
+    except CommentNotFoundByIdException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
+        )
+
+@comments_router.post("/create_comment", status_code=status.HTTP_201_CREATED, response_model=Comment)
 async def create_comment(
-    text: str, author_id: int,
-    post_id: int, is_published: bool = True, 
+    comment_data: CreateComment, 
     use_case = Depends(create_comment_use_case)
 ) -> Comment:
     try:
-        comment = await use_case.execute(
-            text=text,
-            post_id=post_id,
-            author_id=author_id,
-            is_published=is_published
-        )
+        comment = await use_case.execute(comment_data=comment_data)
         return comment
-    except ValueError as err:
+    except (UserNotFoundByIdException, PostNotFoundByIdException) as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(err)
+            status_code=status.HTTP_400_BAD_REQUEST, detail=exc.get_detail()
         )
 
 
-@comments_router.put("/{comment_id}", status_code=status.HTTP_200_OK, response_model=Comment)
+@comments_router.put("/update_comment/{comment_id}", status_code=status.HTTP_200_OK, response_model=Comment)
 async def update_comment(
     comment_id: int,
     text: str,
@@ -89,20 +85,14 @@ async def update_comment(
         )
 
 
-@comments_router.delete("/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
+@comments_router.delete("/delete/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_comment(
     comment_id: int,
     use_case = Depends(delete_comment_use_case)
 ) -> None:
     try:
-        result = await use_case.execute(comment_id=comment_id)
-        if not result:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Комментарий с ID {comment_id} не найден"
-            )
-    except ValueError:
+        await use_case.execute(comment_id=comment_id)
+    except CommentNotFoundByIdException as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Ошибка при удалении комментария"
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
         )

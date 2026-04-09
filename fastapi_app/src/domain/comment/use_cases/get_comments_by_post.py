@@ -1,15 +1,15 @@
 from typing import List
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.comments import CommentRepository
-from schemas.comments import Comment as CommentSchema
+from schemas.comments import Comment
 
 
-class GetAllCommentsUseCase:
+class GetCommentsByPostUseCase:
     def __init__(self):
         self._database = database
         self._repo = CommentRepository()
 
-    async def execute(self) -> List[CommentSchema]:
+    async def execute(self) -> List[Comment]:
         with self._database.session() as session:
             comments = self._repo.get_all_comments(session)
 
@@ -24,6 +24,6 @@ class GetAllCommentsUseCase:
                     "is_published": comment.is_published
                 }
 
-                result.append(CommentSchema.model_validate(obj=comment_dict))
+                result.append(Comment.model_validate(obj=comment_dict))
 
             return result

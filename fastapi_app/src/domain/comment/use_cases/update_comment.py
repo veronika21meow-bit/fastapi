@@ -1,6 +1,6 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.comments import CommentRepository
-from schemas.comments import Comment as CommentSchema
+from schemas.comments import Comment
 
 class UpdateCommentUseCase:
     def __init__(self):
@@ -10,7 +10,7 @@ class UpdateCommentUseCase:
     async def execute(
         self, id: int, text: str,
         is_published: bool = True
-    ) -> CommentSchema:
+    ) -> Comment:
         with self._database.session() as session:
 
             updated = self._repo.update_comment(
@@ -31,4 +31,4 @@ class UpdateCommentUseCase:
                 "create_at": updated.create_at
             }
             
-            return CommentSchema.model_validate(obj=comment_dict)
+            return Comment.model_validate(obj=comment_dict)
