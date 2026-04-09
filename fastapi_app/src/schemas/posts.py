@@ -1,12 +1,8 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
-from schemas.users import User
-from schemas.locations import Location
-from schemas.categories import Category
+from pydantic import BaseModel, Field, ConfigDict
 
 
-class Post(BaseModel):
-    id: int
+class BasePost(BaseModel):
     title: str = Field(..., description='Заголовок', max_length=256)
     text: str = Field(..., description='Текст')
     image: str | None = Field(None, description="Ссылка на изображение")
@@ -19,3 +15,8 @@ class Post(BaseModel):
     category_id: int | None = Field(None, description='Категория')
     is_published: bool = Field(..., description='Опубликовано. Снимите галочку, чтобы скрыть публикацию.')
     create_at: datetime = Field(..., description='Добавлено')
+
+
+class Post(BaseModel):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
