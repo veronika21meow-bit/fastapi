@@ -1,7 +1,7 @@
 from typing import List
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.posts import PostRepository
-from schemas.posts import Post as PostSchema
+from schemas.posts import Post
 
 
 class GetPostsByAuthorUseCase:
@@ -9,10 +9,10 @@ class GetPostsByAuthorUseCase:
         self._database = database
         self._repo = PostRepository()
 
-    async def execute(self, author_id: int) -> List[PostSchema]:
+    async def execute(self, author_id: int) -> List[Post]:
         with self._database.session() as session:
             posts = self._repo.get_posts_by_author(session, author_id)
             result = []
             for post in posts:
-                result.append(PostSchema.model_validate(obj=post))
+                result.append(Post.model_validate(obj=post))
             return result

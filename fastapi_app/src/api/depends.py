@@ -11,7 +11,7 @@ from domain.post.use_cases.delete_post import DeletePostUseCase
 from domain.post.use_cases.update_post import UpdatePostUseCase
 from domain.post.use_cases.get_posts_by_author import GetPostsByAuthorUseCase
 
-from domain.comment.use_cases.get_all_comments import GetAllCommentsUseCase
+from domain.comment.use_cases.get_comments_by_post import GetCommentsByPostUseCase
 from domain.comment.use_cases.get_comment_by_id import GetCommentByIdUseCase
 from domain.comment.use_cases.create_comment import CreateCommentUseCase
 from domain.comment.use_cases.delete_comment import DeleteCommentUseCase
@@ -22,7 +22,6 @@ from domain.location.use_cases.get_location_by_id import GetLocationByIdUseCase
 from domain.location.use_cases.get_location_by_name import GetLocationByNameUseCase
 from domain.location.use_cases.create_location import CreateLocationUseCase
 from domain.location.use_cases.delete_location import DeleteLocationUseCase
-from domain.location.use_cases.update_location import UpdateLocationUseCase
 
 from domain.category.use_cases.get_all_categories import GetAllCategoriesUseCase
 from domain.category.use_cases.get_category_by_id import GetCategoryByIdUseCase
@@ -30,7 +29,6 @@ from domain.category.use_cases.get_category_by_slug import GetCategoryBySlugUseC
 from domain.category.use_cases.get_category_by_title import GetCategoryByTitleUseCase
 from domain.category.use_cases.create_category import CreateCategoryUseCase
 from domain.category.use_cases.delete_category import DeleteCategoryUseCase
-from domain.category.use_cases.update_category import UpdateCategoryUseCase
 
 
 
@@ -69,8 +67,8 @@ def update_post_use_case() -> UpdatePostUseCase:
     return UpdatePostUseCase()
 
 
-def get_all_comments_use_case() -> GetAllCommentsUseCase:
-    return GetAllCommentsUseCase()
+def get_comments_by_post_use_case() -> GetCommentByIdUseCase:
+    return GetCommentsByPostUseCase
 
 def get_comment_by_id_use_case() -> GetCommentByIdUseCase:
     return GetCommentByIdUseCase()
@@ -100,9 +98,6 @@ def create_location_use_case() -> CreateLocationUseCase:
 def delete_location_use_case() -> DeleteLocationUseCase:
     return DeleteLocationUseCase()
 
-def update_location_use_case() -> UpdateLocationUseCase:
-    return UpdateLocationUseCase()
-
 
 def get_all_categories_use_case() -> GetAllCategoriesUseCase:
     return GetAllCategoriesUseCase()
@@ -121,6 +116,3 @@ def create_category_use_case() -> CreateCategoryUseCase:
 
 def delete_category_use_case() -> DeleteCategoryUseCase:
     return DeleteCategoryUseCase()
-
-def update_category_use_case() -> UpdateCategoryUseCase:
-    return UpdateCategoryUseCase()

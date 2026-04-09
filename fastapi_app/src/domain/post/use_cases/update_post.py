@@ -1,6 +1,6 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.posts import PostRepository
-from schemas.posts import Post as PostSchema
+from schemas.posts import Post
 
 class UpdatePostUseCase:
     def __init__(self):
@@ -12,7 +12,7 @@ class UpdatePostUseCase:
         is_published: bool = True,
         category_id: int | None = None,
         image: str | None = None,
-    ) -> PostSchema:
+    ) -> Post:
         with self._database.session() as session:
             updated = self._repo.update_post(
                 session=session,
@@ -39,4 +39,4 @@ class UpdatePostUseCase:
                 "is_published": updated.is_published
             }
             
-            return PostSchema.model_validate(obj=post_dict)
+            return Post.model_validate(obj=post_dict)
