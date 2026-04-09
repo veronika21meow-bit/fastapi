@@ -1,24 +1,19 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.categories import CategoryRepository
-from schemas.categories import Category as CategorySchema
-
+from schemas.categories import Category
+from core.exceptions.database_exceptions import CategoryNotFoundException
+from core.exceptions.domain_exceptions import CategoryNotFoundByIdException
 
 class GetCategoryByIdUseCase:
     def __init__(self):
         self._database = database
         self._repo = CategoryRepository()
 
-    async def execute(self, category_id: int) -> CategorySchema:
+    async def execute(self, category_id: int) -> Category:
         with self._database.session() as session:
-            category = self._repo.get_category_by_id(session, category_id)
-            if not category:
-                raise ValueError(f"Категория с id '{category_id}' не найдена")
-            category_dict = {
-                "id": category.id,
-                "title": category.title,
-                "description": category.description,
-                "slug": category.slug,
-                "is_published": category.is_published,
-                "create_at": category.create_at
-            }
-            return CategorySchema.model_validate(obj=category_dict)
+            try:
+                category = self._repo.get_category_by_id(session, category_id)
+            except CategoryNotFoundException:
+                error = CategoryNotFoundByIdException(id=category_id)
+                raise error
+            return Category.model_validate(obj=category)

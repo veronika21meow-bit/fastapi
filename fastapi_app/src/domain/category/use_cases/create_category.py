@@ -1,39 +1,20 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.categories import CategoryRepository
-from schemas.categories import Category as CategorySchema
-
+from schemas.categories import Category, BaseCategory as CreateCategory
+from core.exceptions.database_exceptions import CategorySlugAlreadyExistsException
+from core.exceptions.domain_exceptions import CategorySlugIsNotUniqueException
 
 class CreateCategoryUseCase:
     def __init__(self):
         self._database = database
         self._repo = CategoryRepository()
 
-    async def execute(self, title: str, description: str,
-                    slug: str, is_published: bool = True) -> CategorySchema:
+    async def execute(self, category_data:CreateCategory) -> Category:
         with self._database.session() as session:
-            existing_title = self._repo.get_category_by_title(session, title)
-            existing_slug = self._repo.get_category_by_slug(session, slug)
-            if existing_title and existing_slug:
-                raise ValueError(f"Пользователь с названием '{title}' и с slug '{slug}' уже существует") 
-            if existing_title:
-                raise ValueError(f"Пользователь с название '{title}' уже существует")
-            if existing_slug:
-                raise ValueError(f"Пользователь с slug '{slug}' уже существует") 
-            category = self._repo.create_category(
-                session=session,
-                title=title,
-                description=description,
-                slug=slug,
-                is_published=is_published
-            )
+            try:
+                category = self._repo.create_category(session=session, category_data=category_data)
+            except CategorySlugAlreadyExistsException:
+                error = CategorySlugIsNotUniqueException(slug=category_data.slug)
+                raise error
 
-            category_data = {
-                "id":category.id,
-                "title":category.title,
-                "description":category.description,
-                "slug":category.slug,
-                "is_published":category.is_published,
-                "create_at":category.create_at
-            }
-
-            return CategorySchema.model_validate(obj=category_data)
+            return Category.model_validate(obj=category)

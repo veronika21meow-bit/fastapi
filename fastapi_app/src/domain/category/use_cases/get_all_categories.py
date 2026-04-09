@@ -1,6 +1,6 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.categories import CategoryRepository
-from schemas.categories import Category as CategorySchema
+from schemas.categories import Category as Category
 from typing import List
 
 
@@ -9,21 +9,11 @@ class GetAllCategoriesUseCase:
         self._database = database
         self._repo = CategoryRepository()
 
-    async def execute(self) -> List[CategorySchema]:
+    async def execute(self) -> List[Category]:
         with self._database.session() as session:
-            categories = self._repo.get_all_categories(session)
-
-            result = []
-            for category in categories:
-                category_dict = {
-                    "id": category.id,
-                    "title": category.title,
-                    "description": category.description,
-                    "slug": category.slug,
-                    "is_published": category.is_published,
-                    "create_at": category.create_at
-                }
-
-                result.append(CategorySchema.model_validate(obj=category_dict))
-
-            return result
+            with self._database.session() as session:
+                categories = self._repo.get_all_categories(session)
+                result = []
+                for category in categories:
+                    result.append(Category.model_validate(obj=category))
+                return result
