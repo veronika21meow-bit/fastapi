@@ -2,8 +2,17 @@ from datetime import datetime
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.posts import PostRepository
 from infrastructure.sqlite.repositories.users import UserRepository
-from schemas.posts import Post as PostSchema
-
+from schemas.posts import Post, BasePost as CreatePost
+from core.exceptions.database_exceptions import (
+    UserNotFoundException,
+    CategoryNotFoundException,
+    LocationNotFoundException
+)
+from core.exceptions.domain_exceptions import (
+    UserNotFoundByIdException,
+    CategoryNotFoundByIdException,
+    LocationNotFoundByIdException
+)
 
 class CreatePostUseCase:
     def __init__(self):
@@ -11,35 +20,24 @@ class CreatePostUseCase:
         self._repo = PostRepository()
         self._user_repo = UserRepository()
 
-    async def execute(
-        self, title: str, text: str,
-        pub_date: datetime, author_id: int,
-        location_id: int | None = None,
-        category_id: int | None = None,
-        image: str | None = None,
-        is_published: bool = True) -> PostSchema:
+    async def execute(self, post_data: CreatePost) -> Post:
         with self._database.session() as session:
-            post = self._repo.create_post(
-                session=session,
-                title=title,
-                text=text,
-                pub_date=pub_date,
-                author_id=author_id,
-                location_id=location_id,
-                category_id=category_id,
-                image=image,
-                is_published=is_published
-            )
-            post_dict = {
-                "id": post.id,
-                "title": post.title,
-                "text": post.text,
-                "pub_date": post.pub_date,
-                "create_at": post.create_at,
-                "author_id": post.author_id,
-                "location_id": post.location_id,
-                "category_id": post.category_id,
-                "image": post.image,
-                "is_published": post.is_published
-            }
-            return PostSchema.model_validate(obj=post_dict)
+            try:
+                post = self._repo.create_post(session=session, post_data=post_data)
+            except UserNotFoundException:
+                error = UserNotFoundByIdException(id=post_data.author_id)
+                raise error
+            except CategoryNotFoundException:
+                if post_data.category_id is not None:
+                    error = CategoryNotFoundByIdException(id=post_data.category_id)
+                    raise error
+                error = CategoryNotFoundException()
+                raise error
+            except LocationNotFoundException:
+                if post_data.location_id is not None:
+                    error = LocationNotFoundByIdException(id=post_data.location_id)
+                    raise error
+                error = LocationNotFoundException()
+                raise error
+
+            return Post.model_validate(obj=post)

@@ -1,8 +1,7 @@
-from datetime import datetime
 from fastapi import APIRouter, status, HTTPException, Depends
 from typing import List
 
-from schemas.posts import Post
+from schemas.posts import Post, BasePost as CreatePost
 
 from api.depends import (
     get_all_posts_use_case,
@@ -11,6 +10,12 @@ from api.depends import (
     create_post_use_case,
     delete_post_use_case,
     update_post_use_case 
+)
+from core.exceptions.domain_exceptions import (
+    PostNotFoundByIdException,
+    CategoryNotFoundByIdException,
+    LocationNotFoundByIdException,
+    UserNotFoundByIdException
 )
 
 posts_router = APIRouter()
@@ -23,16 +28,10 @@ async def get_post_by_id(
 ) -> Post:
     try:
         post = await use_case.execute(post_id=post_id)
-        if not post:  
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Пост с ID {post_id} не найден"
-            )
         return post
-    except ValueError as err:
+    except PostNotFoundByIdException as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(err)
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
         )
 
 
@@ -61,29 +60,17 @@ async def get_posts_by_author(
 
 @posts_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Post)
 async def create_post(
-    title: str, text: str,
-    pub_date: datetime, author_id: int,
-    location_id: int | None = None,
-    category_id: int | None = None,
-    image: str | None = None,
-    is_published: bool = True,
+    post_data: CreatePost,
     use_case = Depends(create_post_use_case)) -> Post:
     try:
-        post = await use_case.execute(
-            title=title,
-            text=text,
-            pub_date=pub_date,
-            author_id=author_id,
-            location_id=location_id,
-            category_id=category_id,
-            image=image,
-            is_published=is_published
-        )
-        return post
-    except ValueError as err:
+        return await use_case.execute(post_data=post_data)
+    except (
+        UserNotFoundByIdException,
+        LocationNotFoundByIdException,
+        CategoryNotFoundByIdException,
+    ) as exc:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(err)
+            status_code=status.HTTP_400_BAD_REQUEST, detail=exc.get_detail()
         )
 
 
@@ -121,14 +108,8 @@ async def delete_post(
     use_case = Depends(delete_post_use_case)
 ) -> None:
     try:
-        result = await use_case.execute(post_id=post_id)
-        if not result:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Пост с ID {post_id} не найден"
-            )
-    except ValueError as e:
+        await use_case.execute(post_id=post_id)
+    except PostNotFoundByIdException as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Ошибка при удалении публикации"
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
         )

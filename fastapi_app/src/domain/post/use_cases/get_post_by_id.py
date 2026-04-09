@@ -1,6 +1,8 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.posts import PostRepository
-from schemas.posts import Post as PostSchema
+from schemas.posts import Post
+from core.exceptions.database_exceptions import PostNotFoundException
+from core.exceptions.domain_exceptions import PostNotFoundByIdException
 
 
 class GetPostByIdUseCase:
@@ -8,22 +10,13 @@ class GetPostByIdUseCase:
         self._database = database
         self._repo = PostRepository()
 
-    async def execute(self, post_id: int) -> PostSchema:
+    async def execute(self, post_id: int) -> Post:
         with self._database.session() as session:
-            post = self._repo.get_post_by_id(session, post_id)
-            if not post:
-                raise ValueError(f"Пост с id '{post_id}' не найден")
-            post_dict = {
-                "id": post.id,
-                "title": post.title,
-                "text": post.text,
-                "pub_date": post.pub_date,
-                "create_at": post.create_at,
-                "author_id": post.author_id,
-                "location_id": post.location_id,
-                "category_id": post.category_id,
-                "image": post.image,
-                "is_published": post.is_published
-            }
+            with self._database.session() as session:
+                try:
+                    post = self._repo.get_post_by_id(session, post_id)
+                except PostNotFoundException:
+                    error = PostNotFoundByIdException(id=post_id)
+                    raise error
 
-            return PostSchema.model_validate(obj=post_dict)
+                return Post.model_validate(obj=post)

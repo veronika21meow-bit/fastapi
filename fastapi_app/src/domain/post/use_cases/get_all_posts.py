@@ -14,18 +14,5 @@ class GetAllPostsUseCase:
             posts = self._repo.get_all_posts(session)
             result = []
             for post in posts:
-                post_dict = {
-                    "id": post.id,
-                    "title": post.title,
-                    "text": post.text,
-                    "pub_date": post.pub_date,
-                    "create_at": post.create_at,
-                    "author_id": post.author_id,
-                    "location_id": post.location_id,
-                    "category_id": post.category_id,
-                    "image": post.image,
-                    "is_published": post.is_published
-                }
-
-                result.append(PostSchema.model_validate(obj=post_dict))
+                result.append(PostSchema.model_validate(obj=post))
             return result
