@@ -8,7 +8,7 @@ class BaseLocation(BaseModel):
     create_at: datetime = Field(..., description='Добавлено')
 
 
-class Location(BaseModel):
+class Location(BaseLocation):
     id: int
     
     model_config = ConfigDict(from_attributes=True)
