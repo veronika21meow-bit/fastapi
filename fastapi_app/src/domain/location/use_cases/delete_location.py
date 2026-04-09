@@ -1,13 +1,17 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.locations import LocationRepository
-
+from core.exceptions.database_exceptions import LocationNotFoundException
+from core.exceptions.domain_exceptions import LocationNotFoundByIdException
 
 class DeleteLocationUseCase:
     def __init__(self):
         self._database = database
         self._repo = LocationRepository()
 
-    async def execute(self, location_id: int) -> bool:
+    async def execute(self, location_id: int) -> None:
         with self._database.session() as session:
-            result = self._repo.delete_location(session, location_id)
-            return result
+            try:
+                self._repo.delete_location(session=session, location_id=location_id)
+            except LocationNotFoundException:
+                error = LocationNotFoundByIdException(id=location_id)
+                raise error

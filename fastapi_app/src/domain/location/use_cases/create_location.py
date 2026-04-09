@@ -1,29 +1,20 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.locations import LocationRepository
-from schemas.locations import Location as LocationSchema
-
+from schemas.locations import Location, BaseLocation as CreateLocation
+from core.exceptions.database_exceptions import LocationNameAlreadyExistsException
+from core.exceptions.domain_exceptions import LocationNameIsNotUniqueException
 
 class CreateLocationUseCase:
     def __init__(self):
         self._database = database
         self._repo = LocationRepository()
 
-    async def execute(self, name: str, is_published: bool = True) -> LocationSchema:
+    async def execute(self, location_data: CreateLocation) -> Location:
         with self._database.session() as session:
-            existing_name = self._repo.get_location_by_name(session, name)
-            if existing_name:
-                raise ValueError(f"Локация с именем '{name}' уже существует") 
-            location = self._repo.create_location(
-                session=session,
-                name=name,
-                is_published=is_published
-            )
+            try:
+                location = self._repo.create_location(session=session, location_data=location_data)
+            except LocationNameAlreadyExistsException:
+                error = LocationNameIsNotUniqueException(name=location_data.name)
+                raise error
 
-            location_data = {
-                "id":location.id,
-                "name":location.name,
-                "is_published":location.is_published,
-                "create_at":location.create_at
-            }
-
-            return LocationSchema.model_validate(obj=location_data)
+            return Location.model_validate(obj=location)

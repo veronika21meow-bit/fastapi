@@ -1,23 +1,19 @@
 from infrastructure.sqlite.database import database
 from infrastructure.sqlite.repositories.locations import LocationRepository
-from schemas.locations import Location as LocationSchema
-
+from schemas.locations import Location
+from core.exceptions.database_exceptions import LocationNotFoundException
+from core.exceptions.domain_exceptions import LocationNotFoundByIdException
 
 class GetLocationByIdUseCase:
     def __init__(self):
         self._database = database
         self._repo = LocationRepository()
 
-    async def execute(self, location_id: int) -> LocationSchema:
+    async def execute(self, location_id: int) -> Location:
         with self._database.session() as session:
-            location = self._repo.get_location_by_id(session, location_id)
-            if not location:
-                raise ValueError(f"Локация с id '{location_id}' не найдена")
-            location_dict = {
-                "id": location.id,
-                "name": location.name,
-                "is_published": location.is_published,
-                "create_at": location.create_at
-            }
-
-            return LocationSchema.model_validate(obj=location_dict)
+            try:
+                location = self._repo.get_location_by_id(session, location_id)
+            except LocationNotFoundException:
+                error = LocationNotFoundByIdException(id=location_id)
+                raise error
+            return Location.model_validate(obj=location)

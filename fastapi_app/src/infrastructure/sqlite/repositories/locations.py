@@ -1,10 +1,13 @@
 from typing import Type, List
-from datetime import datetime
-
+from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 
 from infrastructure.sqlite.models.locations import Location
-
+from schemas.locations import BaseLocation as CreateLocation
+from core.exceptions.database_exceptions import (
+    LocationNotFoundException,
+    LocationNameAlreadyExistsException
+)
 
 class LocationRepository:
     def __init__(self):
@@ -15,43 +18,43 @@ class LocationRepository:
             session.query(self._model)
             .where(self._model.id == id)
         )
-        return query.scalar()
+        location = query.scalar()
+        if not location:
+            raise LocationNotFoundException()
+        return location
     
     def get_location_by_name(self, session: Session, name: str) -> Location:
         query = (
             session.query(self._model)
             .where(self._model.name == name)
         )
-        return query.scalar()
+        location = query.scalar()
+        if not location:
+            raise LocationNotFoundException()
+        return location
     
     def get_all_locations(self, session: Session) -> List[Location]:
         query = session.query(self._model).all()
         return query
-
     
-    def delete_location(self, session: Session, id: int) -> bool:
-        location = self.get_location_by_id(session, id)
+    def delete_location(self, session: Session, location_id: int) -> None:
+        location = self.get_location_by_id(session, location_id)
         if location:
             session.delete(location)
-            session.commit()
-            return True
-        return False
+        else:
+            raise LocationNotFoundException()
     
-    def create_location(self, session:Session, name: str,
-                        is_published: bool = True) -> Location:
-        location = Location(
-            name=name,
-            is_published=is_published,
-            create_at=datetime.now()
+    def create_location(self, session:Session, location_data: CreateLocation) -> Location:
+        existing_location = session.scalar(
+            select(self._model).where(self._model.name == location_data.name)
         )
-        session.add(location)
-        session.commit()
-        return location
+        if existing_location is not None:
+            raise LocationNameAlreadyExistsException()
+        query = (
+            insert(self._model)
+            .values(location_data.model_dump(exclude_none=True))
+            .returning(self._model)
+        )
+        return session.scalar(query)
     
-    def update_location(self, session:Session, id: int, 
-                        name: str) -> Location:
-        location = self.get_location_by_id(session, id)
-        if location:
-            location.name=name
-            session.commit()
-        return location
+
