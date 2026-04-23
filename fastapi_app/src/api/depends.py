@@ -30,6 +30,8 @@ from domain.category.use_cases.get_category_by_title import GetCategoryByTitleUs
 from domain.category.use_cases.create_category import CreateCategoryUseCase
 from domain.category.use_cases.delete_category import DeleteCategoryUseCase
 
+from domain.auth.use_cases.authenticate_user import AuthenticateUserUseCase
+from domain.auth.use_cases.create_access_token import CreateAccessTokenUseCase
 
 
 def get_user_by_id_use_case() -> GetUserByIdUseCase:
@@ -116,3 +118,9 @@ def create_category_use_case() -> CreateCategoryUseCase:
 
 def delete_category_use_case() -> DeleteCategoryUseCase:
     return DeleteCategoryUseCase()
+
+def authenticate_user_use_case() -> AuthenticateUserUseCase:
+    return AuthenticateUserUseCase()
+
+def create_access_token_use_case() -> CreateAccessTokenUseCase:
+    return CreateAccessTokenUseCase()

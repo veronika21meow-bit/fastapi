@@ -17,6 +17,8 @@ from core.exceptions.domain_exceptions import (
     UserLoginIsNotUniqueException,
     UserEmailIsNotUniqueException
 )
+from services.auth import AuthService
+
 
 
 users_router = APIRouter()
@@ -25,27 +27,30 @@ users_router = APIRouter()
 @users_router.get("/profile/{user_id}", status_code=status.HTTP_200_OK, response_model=User)
 async def get_user_by_id(
     user_id: int,
+    user: User = Depends(AuthService.get_current_user),
     use_case = Depends(get_user_by_id_use_case)) -> User:
     try:
-        return await use_case.execute(user_id=user_id)
+        return await use_case.execute(user_id=user_id, current_user=user)
     except UserNotFoundByIdException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail())
 
 @users_router.get("/login/{login}", status_code=status.HTTP_200_OK, response_model=User)
 async def get_user_by_login(
     login: str,
+    user: User = Depends(AuthService.get_current_user),
     use_case = Depends(get_user_by_login_use_case)) -> User:
     try:
-        return await use_case.execute(login=login)
+        return await use_case.execute(login=login, current_user=user)
     except UserNotFoundByLoginException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail())
     
 @users_router.get("/email/{email}", status_code=status.HTTP_200_OK, response_model=User)
 async def get_user_by_email(
     email: str,
+    user: User = Depends(AuthService.get_current_user),
     use_case = Depends(get_user_by_email_use_case)) -> User:
     try:
-        return await use_case.execute(email=email)
+        return await use_case.execute(email=email, current_user=user)
     except UserNotFoundByEmailException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail())
 
@@ -65,8 +70,9 @@ async def create_user(
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: int,
+    user: User = Depends(AuthService.get_current_user),
     use_case = Depends(delete_user_use_case)) -> None: 
     try:
-        await use_case.execute(user_id=user_id)
+        await use_case.execute(user_id=user_id, current_user=user)
     except UserNotFoundByIdException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail())

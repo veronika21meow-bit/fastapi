@@ -18,6 +18,8 @@ from core.exceptions.domain_exceptions import (
     UserNotFoundByIdException
 )
 
+from services.auth import AuthService
+
 posts_router = APIRouter()
 
 
@@ -58,7 +60,7 @@ async def get_posts_by_author(
         )
 
 
-@posts_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Post)
+@posts_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Post, dependencies=[Depends(AuthService.get_current_user)])
 async def create_post(
     post_data: CreatePost,
     use_case = Depends(create_post_use_case)) -> Post:
@@ -102,7 +104,7 @@ async def update_post(
         )
 
 
-@posts_router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+@posts_router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(AuthService.get_current_user)])
 async def delete_post(
     post_id: int,
     use_case = Depends(delete_post_use_case)

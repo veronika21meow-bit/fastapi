@@ -15,6 +15,8 @@ from core.exceptions.domain_exceptions import (
     PostNotFoundByIdException,
     UserNotFoundByIdException,
 )
+from services.auth import AuthService
+
 comments_router = APIRouter()
 
 
@@ -45,7 +47,7 @@ async def get_comments_by_post(
             status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
         )
 
-@comments_router.post("/create_comment", status_code=status.HTTP_201_CREATED, response_model=Comment)
+@comments_router.post("/create_comment", status_code=status.HTTP_201_CREATED, response_model=Comment, dependencies=[Depends(AuthService.get_current_user)])
 async def create_comment(
     comment_data: CreateComment, 
     use_case = Depends(create_comment_use_case)
@@ -85,7 +87,7 @@ async def update_comment(
         )
 
 
-@comments_router.delete("/delete/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
+@comments_router.delete("/delete/{comment_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(AuthService.get_current_user)])
 async def delete_comment(
     comment_id: int,
     use_case = Depends(delete_comment_use_case)

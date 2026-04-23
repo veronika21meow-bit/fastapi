@@ -9,6 +9,9 @@ from core.exceptions.domain_exceptions import (
     UserLoginIsNotUniqueException,
     UserEmailIsNotUniqueException
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CreateUserUseCase:
@@ -21,12 +24,16 @@ class CreateUserUseCase:
             try:
                 user = self._repo.create_user(session=session, user_data=user_data)
             except UserLoginAlreadyExistsException:
-                raise UserLoginIsNotUniqueException(
+                error = UserLoginIsNotUniqueException(
                     login=user_data.login
                 )
+                logger.error(error.get_detail())
+                raise error
             except UserEmailAlreadyExistsException:
-                raise UserEmailIsNotUniqueException(
+                error = UserEmailIsNotUniqueException(
                     email=user_data.email
                 )
+                logger.error(error.get_detail())
+                raise error
             return User.model_validate(obj=user)
         

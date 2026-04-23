@@ -10,6 +10,8 @@ from core.exceptions.database_exceptions import (
     UserLoginAlreadyExistsException
 )
 
+from resources.auth import get_password_hash
+
 
 class UserRepository:
     def __init__(self):
@@ -65,9 +67,13 @@ class UserRepository:
                 raise UserLoginAlreadyExistsException()
             elif existing_user.email == user_data.email:
                 raise UserEmailAlreadyExistsException()
+        
+        user = user_data.model_dump()
+        user['password'] = get_password_hash(user['password'])
+        
         query = (
             insert(self._model)
-            .values(user_data.model_dump())
+            .values(user) 
             .returning(self._model)
         )
         return session.scalar(query)

@@ -16,6 +16,7 @@ from core.exceptions.domain_exceptions import (
     CategoryNotFoundByTitleException,
 )
 from schemas.categories import Category, BaseCategory as CreateCategory
+from services.auth import AuthService
 
 categories_router = APIRouter()
 
@@ -69,7 +70,7 @@ async def get_category_by_title(
         )
 
 
-@categories_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Category)
+@categories_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Category, dependencies=[Depends(AuthService.get_current_user)])
 async def create_category(
     category_data: CreateCategory,
     use_case = Depends(create_category_use_case)

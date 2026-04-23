@@ -14,6 +14,7 @@ from core.exceptions.domain_exceptions import (
     LocationNameIsNotUniqueException,
     LocationNotFoundByNameException,
 )
+from services.auth import AuthService
 
 locations_router = APIRouter()
 
@@ -52,7 +53,7 @@ async def get_location_by_name(
             status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
         )
 
-@locations_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Location)
+@locations_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Location, dependencies=[Depends(AuthService.get_current_user)])
 async def create_location(
     location_data: CreateLocation,
     use_case = Depends(create_location_use_case)
@@ -63,7 +64,7 @@ async def create_location(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=exc.get_detail())
 
 
-@locations_router.delete("/{location_id}", status_code=status.HTTP_204_NO_CONTENT)
+@locations_router.delete("/{location_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(AuthService.get_current_user)])
 async def delete_location(
     location_id: int,
     use_case = Depends(delete_location_use_case)
