@@ -81,7 +81,7 @@ async def create_category(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=exc.get_detail())
 
 
-@categories_router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+@categories_router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(AuthService.get_current_user)])
 async def delete_category(
     category_id: int,
     use_case = Depends(delete_category_use_case)

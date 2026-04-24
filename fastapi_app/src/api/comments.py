@@ -61,7 +61,7 @@ async def create_comment(
         )
 
 
-@comments_router.put("/update_comment/{comment_id}", status_code=status.HTTP_200_OK, response_model=Comment)
+@comments_router.put("/update_comment/{comment_id}", status_code=status.HTTP_200_OK, response_model=Comment, dependencies=[Depends(AuthService.get_current_user)])
 async def update_comment(
     comment_id: int,
     text: str,
