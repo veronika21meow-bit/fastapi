@@ -1,6 +1,9 @@
 from typing import List
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.locations import LocationRepository
+
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.locations import (
+    LocationRepository,
+)
 from application.schemas.locations import Location as Location
 
 

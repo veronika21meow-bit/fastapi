@@ -1,8 +1,12 @@
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.comments import CommentRepository
-from application.schemas.comments import Comment
+import logging
+
 from application.core.exceptions.database_exceptions import CommentNotFoundException
 from application.core.exceptions.domain_exceptions import CommentNotFoundByIdException
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.comments import CommentRepository
+from application.schemas.comments import Comment
+
+logger = logging.getLogger(__name__)
 
 
 class GetCommentByIdUseCase:
@@ -15,7 +19,8 @@ class GetCommentByIdUseCase:
             try:
                 comment = await self._repo.get_comment_by_id(session, comment_id)
             except CommentNotFoundException:
-                error = CommentNotFoundByIdException(comment_id=comment_id)
+                error = CommentNotFoundByIdException(id=comment_id)
+                logger.error(error.get_detail())
                 raise error
 
             return Comment.model_validate(obj=comment)

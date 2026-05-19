@@ -1,11 +1,13 @@
 import logging
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.users import UserRepository
-from application.schemas.users import User
+
 from application.core.exceptions.database_exceptions import UserNotFoundException
 from application.core.exceptions.domain_exceptions import UserNotFoundByEmailException
+from application.schemas.users import User
+from src.application.infrastructure.postgres.database import database
+from src.application.infrastructure.postgres.repositories.users import UserRepository
 
 logger = logging.getLogger(__name__)
+
 
 class GetUserByEmailUseCase:
     def __init__(self):

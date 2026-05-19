@@ -1,8 +1,17 @@
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.categories import CategoryRepository
-from application.schemas.categories import Category
+import logging
+
 from application.core.exceptions.database_exceptions import CategoryNotFoundException
-from application.core.exceptions.domain_exceptions import CategoryNotFoundBySlugException
+from application.core.exceptions.domain_exceptions import (
+    CategoryNotFoundBySlugException,
+)
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.categories import (
+    CategoryRepository,
+)
+from application.schemas.categories import Category
+
+logger = logging.getLogger(__name__)
+
 
 class GetCategoryBySlugUseCase:
     def __init__(self):
@@ -15,5 +24,6 @@ class GetCategoryBySlugUseCase:
                 category = await self._repo.get_category_by_slug(session, slug)
             except CategoryNotFoundException:
                 error = CategoryNotFoundBySlugException(slug=slug)
+                logger.error(error.get_detail())
                 raise error
             return Category.model_validate(obj=category)

@@ -13,3 +13,7 @@ class Comment(BaseComment):
     id: int
     
     model_config = ConfigDict(from_attributes=True)
+
+class UpdateComment(BaseModel):
+    text: str = Field(..., description='Текст комментария')
+    is_published: bool = Field(..., description='Опубликовано. Снимите галочку, чтобы скрыть публикацию.')

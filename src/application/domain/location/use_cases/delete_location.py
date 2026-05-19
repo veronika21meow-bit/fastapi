@@ -1,7 +1,14 @@
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.locations import LocationRepository
+import logging
+
 from application.core.exceptions.database_exceptions import LocationNotFoundException
 from application.core.exceptions.domain_exceptions import LocationNotFoundByIdException
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.locations import (
+    LocationRepository,
+)
+
+logger = logging.getLogger(__name__)
+
 
 class DeleteLocationUseCase:
     def __init__(self):
@@ -11,7 +18,11 @@ class DeleteLocationUseCase:
     async def execute(self, location_id: int) -> None:
         async with self._database.session() as session:
             try:
-                self._repo.delete_location(session=session, location_id=location_id)
+                await self._repo.delete_location(
+                    session=session, location_id=location_id
+                )
+                await session.commit()
             except LocationNotFoundException:
                 error = LocationNotFoundByIdException(id=location_id)
+                logger.error(error.get_detail())
                 raise error

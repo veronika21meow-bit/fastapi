@@ -1,7 +1,8 @@
 from typing import List
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.posts import PostRepository
+
 from application.schemas.posts import Post
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.posts import PostRepository
 
 
 class GetAllPostsUseCase:

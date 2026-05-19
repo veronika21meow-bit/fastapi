@@ -1,7 +1,10 @@
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.categories import CategoryRepository
-from application.schemas.categories import Category as Category
 from typing import List
+
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.categories import (
+    CategoryRepository,
+)
+from application.schemas.categories import Category as Category
 
 
 class GetAllCategoriesUseCase:

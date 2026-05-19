@@ -69,8 +69,8 @@ def update_post_use_case() -> UpdatePostUseCase:
     return UpdatePostUseCase()
 
 
-def get_comments_by_post_use_case() -> GetCommentByIdUseCase:
-    return GetCommentsByPostUseCase
+def get_comments_by_post_use_case() -> GetCommentsByPostUseCase:
+    return GetCommentsByPostUseCase()
 
 def get_comment_by_id_use_case() -> GetCommentByIdUseCase:
     return GetCommentByIdUseCase()

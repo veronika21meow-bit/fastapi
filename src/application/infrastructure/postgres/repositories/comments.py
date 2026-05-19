@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from application.infrastructure.postgres.models.comments import Comment
 from application.infrastructure.postgres.models.users import User
 from application.infrastructure.postgres.models.posts import Post
-from application.schemas.comments import BaseComment as CreateComment
+from application.schemas.comments import BaseComment as CreateComment, UpdateComment
 from application.core.exceptions.database_exceptions import (
     CommentNotFoundException,
     PostNotFoundException,
@@ -28,24 +28,22 @@ class CommentRepository:
         return comment
     
     async def get_comments_by_post(self, session: AsyncSession, post_id: int) -> List[Comment]:
-        query = (
-            select(self._model)
-            .where(self._model.post_id == post_id)
-            .order_by(self._model.created_at.asc())
+        post_query = select(self._post_model).where(
+            self._post_model.id == post_id
         )
+        post_result = await session.execute(post_query)
+        post = post_result.scalar_one_or_none()
+        if not post:
+            raise PostNotFoundException()
+        query = select(self._model).where(self._model.post_id == post_id)
         result = await session.execute(query)
         comments = result.scalars().all()
-
-        if not comments:
-            raise CommentNotFoundException()
-
         return comments
 
     async def delete_comment(self, session: AsyncSession, comment_id: int) -> None:
         comment = await self.get_comment_by_id(session, comment_id)
         if comment:
             await session.delete(comment)
-            await session.flush()
         else:
             raise CommentNotFoundException()
     
@@ -72,11 +70,11 @@ class CommentRepository:
 
         return comment
     
-    async def update_comment(self, session:AsyncSession, text: str, id: int,
-                       is_published: bool = True) -> Comment:
-        comment = self.get_comment_by_id(session, id)
-        if comment:
-            comment.text = text
-            comment.is_published = is_published
-            session.commit()
+    async def update_comment(self, session:AsyncSession, comment_id: int, comment_data: UpdateComment) -> Comment:
+        comment = await self.get_comment_by_id(session, comment_id)
+        update_data = comment_data.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(comment, key, value)
+        await session.flush()
+        await session.refresh(comment)
         return comment

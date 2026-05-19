@@ -5,7 +5,8 @@ from application.schemas.categories import BaseCategory as CreateCategory
 from application.infrastructure.postgres.models.categories import Category
 from application.core.exceptions.database_exceptions import (
     CategoryNotFoundException,
-    CategorySlugAlreadyExistsException
+    CategorySlugAlreadyExistsException,
+    CategoryTitleAlreadyExistsException
 )
 
 
@@ -48,9 +49,6 @@ class CategoryRepository:
         result = await session.execute(query)
         categories = result.scalars().all()
 
-        if not categories:
-            raise CategoryNotFoundException()
-
         return categories
     
     async def delete_category(self, session: AsyncSession, category_id: int) -> None:
@@ -63,19 +61,19 @@ class CategoryRepository:
             raise CategoryNotFoundException()
     
     async def create_category(self, session:AsyncSession, category_data:CreateCategory) -> Category:
-        existing_query = select(self._model).where(self._model.slug == data.slug)
-        existing_result = await session.execute(existing_query)
-        existing_category = existing_result.scalar_one_or_none()
-        
-        if existing_category is not None:
+        existing_by_slug = await session.execute(
+            select(self._model).where(self._model.slug == category_data.slug)
+        )
+        if existing_by_slug.scalar_one_or_none():
             raise CategorySlugAlreadyExistsException()
-        
-        data = category_data.model_dump(exclude_none=True)
+        existing_by_title = await session.execute(
+            select(self._model).where(self._model.title == category_data.title)
+        )
+        if existing_by_title.scalar_one_or_none():
+            raise CategoryTitleAlreadyExistsException()
+        data = category_data.model_dump(exclude_none=True)        
         category = self._model(**data)
         session.add(category)
         await session.flush()
         await session.refresh(category)
-
         return category
-    
-

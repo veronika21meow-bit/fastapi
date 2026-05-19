@@ -1,7 +1,13 @@
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.categories import CategoryRepository
+import logging
+
 from application.core.exceptions.database_exceptions import CategoryNotFoundException
 from application.core.exceptions.domain_exceptions import CategoryNotFoundByIdException
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.categories import (
+    CategoryRepository,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class DeleteCategoryUseCase:
@@ -12,7 +18,10 @@ class DeleteCategoryUseCase:
     async def execute(self, category_id: int) -> None:
         async with self._database.session() as session:
             try:
-                self._repo.delete_category(session=session, category_id=category_id)
+                await self._repo.delete_category(
+                    session=session, category_id=category_id
+                )
             except CategoryNotFoundException:
                 error = CategoryNotFoundByIdException(id=category_id)
+                logger.error(error.get_detail())
                 raise error

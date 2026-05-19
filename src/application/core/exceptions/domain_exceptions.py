@@ -51,7 +51,15 @@ class UserEmailIsNotUniqueException(BaseDomainException):
     def __init__(self, email: EmailStr) -> None:
         self._exception_text_template = self._exception_text_template.format(email=email)
 
-        super().__init__(detail=self._exception_text_template)  
+        super().__init__(detail=self._exception_text_template)
+
+
+class UserPermissionDeniedException(BaseDomainException):
+    _exception_text = "Пользователь может удалять только свою учетную запись"
+    
+    def __init__(self) -> None:
+            super().__init__(detail=self._exception_text)
+
 
 class CategoryNotFoundByIdException(BaseDomainException):
     _exception_text_template = "Категория с id={id} не найдена"

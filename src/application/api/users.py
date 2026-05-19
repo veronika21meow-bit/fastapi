@@ -15,7 +15,8 @@ from application.core.exceptions.domain_exceptions import (
     UserNotFoundByEmailException,
     UserNotFoundByLoginException,
     UserLoginIsNotUniqueException,
-    UserEmailIsNotUniqueException
+    UserEmailIsNotUniqueException,
+    UserPermissionDeniedException
 )
 from application.services.auth import AuthService
 
@@ -76,3 +77,5 @@ async def delete_user(
         await use_case.execute(user_id=user_id, current_user=user)
     except UserNotFoundByIdException as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail())
+    except UserPermissionDeniedException as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.get_detail())
