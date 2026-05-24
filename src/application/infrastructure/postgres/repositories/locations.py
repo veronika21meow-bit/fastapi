@@ -1,6 +1,7 @@
 from typing import List, Type
 
-from sqlalchemy import select
+from sqlalchemy import insert, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.core.exceptions.database_exceptions import (
@@ -17,22 +18,16 @@ class LocationRepository:
 
     async def get_location_by_id(self, session: AsyncSession, id: int) -> Location:
         query = select(self._model).where(self._model.id == id)
-        result = await session.execute(query)
-        location = result.scalar_one_or_none()
-
+        location = await session.scalar(query)
         if not location:
             raise LocationNotFoundException()
-
         return location
 
     async def get_location_by_name(self, session: AsyncSession, name: str) -> Location:
         query = select(self._model).where(self._model.name == name)
-        result = await session.execute(query)
-        location = result.scalar_one_or_none()
-
+        location = await session.scalar(query)
         if not location:
             raise LocationNotFoundException()
-
         return location
 
     async def get_all_locations(self, session: AsyncSession) -> List[Location]:
@@ -43,28 +38,15 @@ class LocationRepository:
 
     async def delete_location(self, session: AsyncSession, location_id: int) -> None:
         location = await self.get_location_by_id(session, location_id)
-        if location:
-            await session.delete(location)
-            await session.flush()
-        else:
-            raise LocationNotFoundException()
+        await session.delete(location)
 
     async def create_location(
         self, session: AsyncSession, location_data: CreateLocation
     ) -> Location:
-        existing_query = select(self._model).where(
-            self._model.name == location_data.name
-        )
-        existing_result = await session.execute(existing_query)
-        existing_location = existing_result.scalar_one_or_none()
-
-        if existing_location is not None:
+        location_dict = location_data.model_dump(exclude_none=True)
+        query = insert(self._model).values(location_dict).returning(self._model)
+        try:
+            location = await session.scalar(query)
+            return location
+        except IntegrityError:
             raise LocationNameAlreadyExistsException()
-
-        data = location_data.model_dump(exclude_none=True)
-        location = self._model(**data)
-        session.add(location)
-        await session.flush()
-        await session.refresh(location)
-
-        return location

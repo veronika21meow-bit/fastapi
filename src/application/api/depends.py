@@ -3,6 +3,7 @@ from application.domain.user.use_cases.get_user_by_login import GetUserByLoginUs
 from application.domain.user.use_cases.get_user_by_email import GetUserByEmailUseCase
 from application.domain.user.use_cases.create_user import CreateUserUseCase
 from application.domain.user.use_cases.delete_user import DeleteUserUseCase
+from application.domain.user.use_cases.update_user import UpdateUserUseCase
 
 from application.domain.post.use_cases.get_all_posts import GetAllPostsUseCase
 from application.domain.post.use_cases.get_post_by_id import GetPostByIdUseCase
@@ -10,12 +11,16 @@ from application.domain.post.use_cases.create_post import CreatePostUseCase
 from application.domain.post.use_cases.delete_post import DeletePostUseCase
 from application.domain.post.use_cases.update_post import UpdatePostUseCase
 from application.domain.post.use_cases.get_posts_by_author import GetPostsByAuthorUseCase
+from application.domain.post.use_cases.add_post_image import AddPostImageUseCase
+from application.domain.post.use_cases.get_post_images import GetPostImagesUseCase
 
 from application.domain.comment.use_cases.get_comments_by_post import GetCommentsByPostUseCase
 from application.domain.comment.use_cases.get_comment_by_id import GetCommentByIdUseCase
 from application.domain.comment.use_cases.create_comment import CreateCommentUseCase
 from application.domain.comment.use_cases.delete_comment import DeleteCommentUseCase
 from application.domain.comment.use_cases.update_comment import UpdateCommentUseCase
+from application.domain.comment.use_cases.add_comment_image import AddCommentImageUseCase
+from application.domain.comment.use_cases.get_comment_images import GetCommentImagesUseCase
 
 from application.domain.location.use_cases.get_all_locations import GetAllLocationsUseCase
 from application.domain.location.use_cases.get_location_by_id import GetLocationByIdUseCase
@@ -49,6 +54,9 @@ def create_user_use_case() -> CreateUserUseCase:
 def delete_user_use_case() -> DeleteUserUseCase:
     return DeleteUserUseCase()
 
+def update_user_use_case() -> UpdateUserUseCase:
+    return UpdateUserUseCase()
+
 
 def get_posts_by_author_use_case() -> GetPostsByAuthorUseCase:
     return GetPostsByAuthorUseCase()
@@ -68,6 +76,12 @@ def delete_post_use_case() -> DeletePostUseCase:
 def update_post_use_case() -> UpdatePostUseCase:
     return UpdatePostUseCase()
 
+def add_post_image_use_case() -> AddPostImageUseCase:
+    return AddPostImageUseCase()
+
+def get_post_images_use_case() -> GetPostImagesUseCase:
+    return GetPostImagesUseCase()
+
 
 def get_comments_by_post_use_case() -> GetCommentsByPostUseCase:
     return GetCommentsByPostUseCase()
@@ -83,6 +97,12 @@ def delete_comment_use_case() -> DeleteCommentUseCase:
 
 def update_comment_use_case() -> UpdateCommentUseCase:
     return UpdateCommentUseCase()
+
+def add_comment_image_use_case() -> AddCommentImageUseCase:
+    return AddCommentImageUseCase()
+
+def get_comment_images_use_case() -> GetCommentImagesUseCase:
+    return GetCommentImagesUseCase()
 
 
 def get_all_locations_use_case() -> GetAllLocationsUseCase:

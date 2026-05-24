@@ -1,19 +1,18 @@
-from pydantic import BaseModel, SecretStr, Field, EmailStr, ConfigDict, field_validator
 from fastapi import HTTPException, status
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 class BaseUser(BaseModel):
     login: str
-    email : EmailStr
+    email: EmailStr
     first_name: str | None = Field(None, max_length=20)
     last_name: str | None = Field(None, max_length=20)
 
 
 class User(BaseUser):
     model_config = ConfigDict(from_attributes=True)
-    
-    id: int
 
+    id: int
 
 
 class CreateUser(BaseUser):
@@ -25,10 +24,6 @@ class CreateUser(BaseUser):
         if len(password) < 8:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                detail="Пароль должен быть не менее 8 символов"
+                detail="Пароль должен быть не менее 8 символов",
             )
         return password
-
-
-
-

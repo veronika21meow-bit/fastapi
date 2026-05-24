@@ -1,6 +1,7 @@
 from typing import List, Type
 
-from sqlalchemy import select
+from sqlalchemy import insert, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.core.exceptions.database_exceptions import (
@@ -24,10 +25,9 @@ class PostRepository:
         self._location_model: Type[Location] = Location
         self._category_model: Type[Category] = Category
 
-    async def get_post_by_id(self, session: AsyncSession, id: int) -> Post | None:
+    async def get_post_by_id(self, session: AsyncSession, id: int) -> Post:
         query = select(self._model).where(self._model.id == id)
-        result = await session.execute(query)
-        post = result.scalar_one_or_none()
+        post = await session.scalar(query)
         if not post:
             raise PostNotFoundException()
         return post
@@ -38,8 +38,7 @@ class PostRepository:
         author_query = select(self._author_model).where(
             self._author_model.id == author_id
         )
-        author_result = await session.execute(author_query)
-        author = author_result.scalar_one_or_none()
+        author = await session.scalar(author_query)
         if not author:
             raise UserNotFoundException()
         query = select(self._model).where(self._model.author_id == author_id)
@@ -55,62 +54,81 @@ class PostRepository:
 
     async def delete_post(self, session: AsyncSession, post_id: int) -> None:
         post = await self.get_post_by_id(session, post_id)
-        if post:
-            await session.delete(post)
-        else:
-            raise PostNotFoundException()
+        await session.delete(post)
 
     async def create_post(self, session: AsyncSession, post_data: CreatePost) -> Post:
-        author_query = select(self._author_model).where(
-            self._author_model.id == post_data.author_id
-        )
-        author_result = await session.execute(author_query)
-        author = author_result.scalar_one_or_none()
-
-        if not author:
-            raise UserNotFoundException()
-
-        if post_data.location_id is not None:
-            location_query = select(self._location_model).where(
-                self._location_model.id == post_data.location_id
-            )
-            location_result = await session.execute(location_query)
-            location = location_result.scalar_one_or_none()
-            if not location:
+        post_dict = post_data.model_dump(exclude_none=True)
+        query = insert(self._model).values(post_dict).returning(self._model)
+        try:
+            post = await session.scalar(query)
+            return post
+        except IntegrityError as e:
+            await session.rollback()
+            error_msg = str(e).lower()
+            if "posts_author_id_fkey" in error_msg:
+                raise UserNotFoundException()
+            elif "posts_location_id_fkey" in error_msg:
                 raise LocationNotFoundException()
-
-        if post_data.category_id is not None:
-            category_query = select(self._category_model).where(
-                self._category_model.id == post_data.category_id
-            )
-            category_result = await session.execute(category_query)
-            category = category_result.scalar_one_or_none()
-            if not category:
+            elif "posts_category_id_fkey" in error_msg:
                 raise CategoryNotFoundException()
-
-        post_data = post_data.model_dump(exclude_none=True)
-        post = self._model(**post_data)
-        session.add(post)
-        await session.flush()
-        await session.refresh(post)
-
-        return post
+            raise
 
     async def update_post(
         self, session: AsyncSession, post_id: int, post_data: UpdatePost
     ) -> Post:
-        post = await self.get_post_by_id(session, post_id)
+        update_data = post_data.model_dump(exclude_unset=True, exclude_none=True)
         if post_data.category_id is not None:
             category_query = select(self._category_model).where(
                 self._category_model.id == post_data.category_id
             )
-            category_result = await session.execute(category_query)
-            category = category_result.scalar_one_or_none()
+            category = await session.scalar(category_query)
             if not category:
                 raise CategoryNotFoundException()
-        update_data = post_data.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(post, key, value)
-        await session.flush()
-        await session.refresh(post)
-        return post
+        query = (
+            update(self._model)
+            .where(self._model.id == post_id)
+            .values(update_data)
+            .returning(self._model)
+        )
+        try:
+            post = await session.scalar(query)
+            if not post:
+                raise PostNotFoundException()
+            return post
+        except IntegrityError:
+            raise CategoryNotFoundException()
+
+    async def add_post_images(
+        self, session: AsyncSession, post_id: int, image_paths: list
+    ) -> Post:
+        post = await self.get_post_by_id(session, post_id)
+        current_images = post.images or []
+        current_images.extend(image_paths)
+        query = (
+            update(self._model)
+            .where(self._model.id == post_id)
+            .values(images=current_images)
+            .returning(self._model)
+        )
+        updated_post = await session.scalar(query)
+        if not updated_post:
+            raise PostNotFoundException()
+        return updated_post
+
+    async def update_post_images(
+        self, session: AsyncSession, post_id: int, images: list
+    ) -> Post:
+        query = (
+            update(self._model)
+            .where(self._model.id == post_id)
+            .values(images=images)
+            .returning(self._model)
+        )
+        updated_post = await session.scalar(query)
+        if not updated_post:
+            raise PostNotFoundException()
+        return updated_post
+
+    async def get_post_images(self, session: AsyncSession, post_id: int) -> list:
+        post = await self.get_post_by_id(session, post_id)
+        return post.images

@@ -55,7 +55,7 @@ class UserEmailIsNotUniqueException(BaseDomainException):
 
 
 class UserPermissionDeniedException(BaseDomainException):
-    _exception_text = "Пользователь может удалять только свою учетную запись"
+    _exception_text = "Операция разрешена только для владельца учетной записи"
     
     def __init__(self) -> None:
             super().__init__(detail=self._exception_text)
@@ -153,6 +153,20 @@ class CommentNotFoundByIdException(BaseDomainException):
 
 class WrongPasswordException(BaseDomainException):
     _exception_text = "Неверный пароль"
+
+    def __init__(self) -> None:
+        super().__init__(detail=self._exception_text)
+
+
+class UploadFileIsNotImageException(BaseDomainException):
+    _exception_text = "Загруженный файл не является JPEG изображением"
+
+    def __init__(self) -> None:
+        super().__init__(detail=self._exception_text)
+
+     
+class PostHasNoImageException(BaseDomainException):
+    _exception_text = "Данный пост не содержит изображения"
 
     def __init__(self) -> None:
         super().__init__(detail=self._exception_text)

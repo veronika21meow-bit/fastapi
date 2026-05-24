@@ -2,9 +2,11 @@ import logging
 
 from application.core.exceptions.database_exceptions import (
     CategorySlugAlreadyExistsException,
+    CategoryTitleAlreadyExistsException,
 )
 from application.core.exceptions.domain_exceptions import (
     CategorySlugIsNotUniqueException,
+    CategoryTitleIsNotUniqueException,
 )
 from application.infrastructure.postgres.database import database
 from application.infrastructure.postgres.repositories.categories import (
@@ -29,6 +31,10 @@ class CreateCategoryUseCase:
                 )
             except CategorySlugAlreadyExistsException:
                 error = CategorySlugIsNotUniqueException(slug=category_data.slug)
+                logger.error(error.get_detail())
+                raise error
+            except CategoryTitleAlreadyExistsException:
+                error = CategoryTitleIsNotUniqueException(title=category_data.title)
                 logger.error(error.get_detail())
                 raise error
 

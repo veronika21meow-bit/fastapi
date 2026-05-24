@@ -1,8 +1,9 @@
 from ..database import Base
 from datetime import datetime
+from typing import List
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, JSON
 
 
 class Comment(Base):
@@ -11,6 +12,7 @@ class Comment(Base):
     text: Mapped[str] = mapped_column(nullable=False)
     is_published: Mapped[bool] = mapped_column(nullable=False, default=True)
     create_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now)
+    images: Mapped[List[str]] = mapped_column(JSON, nullable=True, default=list)
     post_id: Mapped[int] = mapped_column(
         ForeignKey("posts.id", name="fk_comments_post_id", ondelete="SET NULL"), 
         nullable=True

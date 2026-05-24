@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 
 from application.api.depends import (
     create_comment_use_case,
@@ -8,14 +8,17 @@ from application.api.depends import (
     get_comment_by_id_use_case,
     get_comments_by_post_use_case,
     update_comment_use_case,
+    add_comment_image_use_case,
+    get_comment_images_use_case,
 )
 from application.core.exceptions.domain_exceptions import (
     CommentNotFoundByIdException,
     PostNotFoundByIdException,
     UserNotFoundByIdException,
+    UploadFileIsNotImageException,
 )
 from application.schemas.comments import BaseComment as CreateComment
-from application.schemas.comments import Comment, UpdateComment
+from application.schemas.comments import Comment, UpdateComment, CommentImageResponse
 from application.services.auth import AuthService
 
 comments_router = APIRouter()
@@ -101,4 +104,47 @@ async def delete_comment(
     except CommentNotFoundByIdException as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
+        )
+
+
+@comments_router.post(
+    "/{comment_id}/images",
+    status_code=status.HTTP_200_OK,
+    response_model=CommentImageResponse,
+    dependencies=[Depends(AuthService.get_current_user)],
+)
+async def add_comment_image(
+    comment_id: int,
+    image: UploadFile = File(...),
+    use_case=Depends(add_comment_image_use_case),
+) -> CommentImageResponse:
+    try:
+        return await use_case.execute(comment_id=comment_id, image=image)
+    except CommentNotFoundByIdException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=exc.get_detail()
+        )
+    except UploadFileIsNotImageException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=exc.get_detail()
+        )
+
+
+@comments_router.get(
+    "/{comment_id}/images",
+    status_code=status.HTTP_200_OK,
+    response_model=List[CommentImageResponse],
+)
+async def get_comment_images(
+    comment_id: int,
+    use_case=Depends(get_comment_images_use_case),
+) -> List[CommentImageResponse]:
+    try:
+        return await use_case.execute(comment_id=comment_id)
+    except CommentNotFoundByIdException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=exc.get_detail()
         )

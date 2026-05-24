@@ -15,17 +15,19 @@ from application.infrastructure.postgres.repositories.users import UserRepositor
 logger = logging.getLogger(__name__)
 
 
-class CreateUserUseCase:
+class UpdateUserUseCase:
     def __init__(self):
         self._database = database
         self._repo = UserRepository()
 
-    async def execute(self, user_data: CreateUser) -> User:
+    async def execute(self, user_id: int, user_data: CreateUser) -> User:
         async with self._database.session() as session:
             try:
-                user = await self._repo.create_user(
-                    session=session, user_data=user_data
+                user = await self._repo.update_user(
+                    session=session, user_id=user_id, user_data=user_data
                 )
+                await session.commit()
+                await session.refresh(user)
             except UserLoginAlreadyExistsException:
                 error = UserLoginIsNotUniqueException(login=user_data.login)
                 logger.error(error.get_detail())

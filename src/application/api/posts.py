@@ -1,12 +1,14 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from application.api.depends import (
+    add_post_image_use_case,
     create_post_use_case,
     delete_post_use_case,
     get_all_posts_use_case,
     get_post_by_id_use_case,
+    get_post_images_use_case,
     get_posts_by_author_use_case,
     update_post_use_case,
 )
@@ -14,10 +16,11 @@ from application.core.exceptions.domain_exceptions import (
     CategoryNotFoundByIdException,
     LocationNotFoundByIdException,
     PostNotFoundByIdException,
+    UploadFileIsNotImageException,
     UserNotFoundByIdException,
 )
 from application.schemas.posts import BasePost as CreatePost
-from application.schemas.posts import Post, UpdatePost
+from application.schemas.posts import Post, PostImageResponse, UpdatePost
 from application.services.auth import AuthService
 
 posts_router = APIRouter()
@@ -107,6 +110,48 @@ async def update_post(
 async def delete_post(post_id: int, use_case=Depends(delete_post_use_case)) -> None:
     try:
         await use_case.execute(post_id=post_id)
+    except PostNotFoundByIdException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()
+        )
+
+
+@posts_router.post(
+    "/{post_id}/images",
+    status_code=status.HTTP_200_OK,
+    response_model=PostImageResponse,
+    dependencies=[Depends(AuthService.get_current_user)],
+)
+async def add_post_image(
+    post_id: int,
+    image: UploadFile = File(...), 
+    use_case=Depends(add_post_image_use_case),
+) -> PostImageResponse:
+    try:
+        return await use_case.execute(post_id=post_id, image=image)
+    except PostNotFoundByIdException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=exc.get_detail()
+        )
+    except UploadFileIsNotImageException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=exc.get_detail()
+        )
+
+
+@posts_router.get(
+    "/{post_id}/images",
+    status_code=status.HTTP_200_OK,
+    response_model=List[PostImageResponse],
+)
+async def get_post_images(
+    post_id: int,
+    use_case=Depends(get_post_images_use_case),
+) -> List[PostImageResponse]:
+    try:
+        return await use_case.execute(post_id=post_id)
     except PostNotFoundByIdException as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=exc.get_detail()

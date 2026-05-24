@@ -6,6 +6,7 @@ from application.api.comments import comments_router
 from application.api.categories import categories_router
 from application.api.locations import locations_router
 from application.api.auth import router as auth_router
+from fastapi.staticfiles import StaticFiles
 
 
 def create_app() -> FastAPI:
@@ -18,7 +19,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
+    app.mount("/images", StaticFiles(directory="/fastapi_app/images"), name="images")
+    app.mount("/comment_images", StaticFiles(directory="/fastapi_app/comment_images"), name="comment_images")
     app.include_router(users_router, prefix="/api/v1/users", tags=["User APIs"])
     app.include_router(posts_router, prefix="/api/v1/posts", tags=["Post APIs"])
     app.include_router(comments_router, prefix="/api/v1/comments", tags=["Comment APIs"])

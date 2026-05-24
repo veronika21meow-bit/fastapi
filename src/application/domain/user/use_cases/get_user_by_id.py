@@ -3,8 +3,8 @@ import logging
 from application.core.exceptions.database_exceptions import UserNotFoundException
 from application.core.exceptions.domain_exceptions import UserNotFoundByIdException
 from application.schemas.users import User
-from src.application.infrastructure.postgres.database import database
-from src.application.infrastructure.postgres.repositories.users import UserRepository
+from application.infrastructure.postgres.database import database
+from application.infrastructure.postgres.repositories.users import UserRepository
 
 logger = logging.getLogger(__name__)
 
